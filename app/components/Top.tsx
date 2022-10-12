@@ -8,7 +8,7 @@ import clsx from 'clsx'
 export default function Top() {
   const [searchParams] = useSearchParams()
   const searchKeyWord = searchParams.get('query') || ''
-  const ctg = searchParams.get('ctg') || undefined
+  const scope = searchParams.get('scope') || undefined
   const language = searchParams.get('language') || undefined
   const includeAdult = searchParams.get('include_adult') === 'true'
   const { state } = useTransition()
@@ -39,7 +39,7 @@ export default function Top() {
           <option value="en-US">en-US</option>
           <option value="ja-JP">ja-JP</option>
         </select>
-        <select name="ctg" defaultValue={ctg}>
+        <select name="scope" defaultValue={scope}>
           <option value="multi">Multi</option>
           <option value="movie">Movie</option>
           <option value="tv">TV</option>

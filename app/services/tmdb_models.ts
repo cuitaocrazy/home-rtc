@@ -6,9 +6,8 @@ export type Movie = {
   release_date?: string
   original_title?: string
   genre_ids?: number[]
-  media_type: 'movie'
   original_language?: string
-  title?: string
+  title: string
   backdrop_path?: string
   popularity?: number
   vote_count?: number
@@ -23,13 +22,12 @@ export type TV = {
   overview?: string
   backdrop_path?: string
   vote_average?: number
-  media_type: 'tv'
-  first_air_date?: string
+  first_air_date: string
   origin_country?: string[]
   genre_ids?: number[]
   original_language?: string
   vote_count?: number
-  name?: string
+  name: string
   original_name?: string
 }
 
@@ -37,12 +35,24 @@ export type Person = {
   id: number
   profile_path?: string
   adult?: boolean
-  media_type: 'person'
-  known_for?: (Movie | TV)[]
-  name?: string
+  known_for: (Movie | TV)[]
+  name: string
   popularity?: number
   known_for_department?: string
 }
+
+export type WithMediaType<T> = T extends Movie
+  ? Movie & { media_type: 'movie' }
+  : T extends TV
+  ? TV & { media_type: 'tv' }
+  : T extends Person
+  ? Person & { media_type: 'person' }
+  : never
+
+export type Multi =
+  | WithMediaType<Movie>
+  | WithMediaType<TV>
+  | WithMediaType<Person>
 
 export type SearchResults<T> = {
   page: number
@@ -50,6 +60,8 @@ export type SearchResults<T> = {
   total_pages: number
   results: T[]
 }
+
+export type SearchScope = 'multi' | 'movie' | 'tv' | 'person'
 
 export function getMediaProp<T>(
   item: Movie | TV | Person,

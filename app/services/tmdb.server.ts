@@ -3,7 +3,7 @@ import type {
   Movie,
   MovieCredits,
   MovieDetails,
-  Person,
+  Multi,
   PersonDetails,
   PersonMovieCredits,
   PersonTVCredits,
@@ -18,7 +18,7 @@ export async function searchMulti(searchParams: URLSearchParams) {
   if (!query) return { page: 0, total_results: 0, total_pages: 0, results: [] }
   const aipParams = getApiParams('search', 'Multi', searchParams)
 
-  return search<Movie | TV | Person>(aipParams)
+  return search<Multi>(aipParams)
 }
 
 export async function searchMovie(searchParams: URLSearchParams) {
@@ -157,3 +157,5 @@ export async function getTvExtenalIds(tvId: number): Promise<any> {
 
   return data
 }
+
+// export async function getMovieDiscover()

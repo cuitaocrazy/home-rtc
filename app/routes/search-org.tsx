@@ -14,10 +14,6 @@ import type {
   TV,
 } from '~/services/tmdb_models'
 
-export const handle = {
-  unneededScrollRestoration: true,
-}
-
 function getScope(scope: string | null) {
   return (scope || 'multi') as 'multi' | 'movie' | 'tv'
 }
@@ -38,7 +34,7 @@ export async function loader(args: LoaderArgs) {
     results = await searchMulti(searchParams)
   }
 
-  return json(results, { headers: { 'Cache-Control': 'max-age=3600' } })
+  return json(results)
 }
 
 export const meta: MetaFunction = () => {

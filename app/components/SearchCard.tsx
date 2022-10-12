@@ -1,6 +1,12 @@
 import React from 'react'
 
-import type { Movie, Person, TV } from '~/services/tmdb_models'
+import type {
+  Movie,
+  Multi,
+  Person,
+  SearchScope,
+  TV,
+} from '~/services/tmdb_models'
 import { getMediaProp } from '~/services/tmdb_models'
 import { getImageUrl } from '~/utils'
 
@@ -8,17 +14,20 @@ import { StarIcon } from './icons'
 import LinkCard from './LinkCard'
 
 interface SearchCard {
-  item: Movie | TV | Person
-  ctg: 'movie' | 'tv' | 'multi'
+  item: Multi | Movie | TV | Person
+  searchScope: SearchScope
 }
 
 export default React.forwardRef<HTMLElement, SearchCard>(
-  function SimpleMovieInfoCard({ item, ctg }, ref) {
+  function SimpleMovieInfoCard({ item, searchScope }, ref) {
     const title: string =
       getMediaProp(item, 'title') || getMediaProp(item, 'name')
     const imagePath: string | undefined =
       getMediaProp(item, 'poster_path') || getMediaProp(item, 'profile_path')
-    const itemType = ctg === 'multi' ? item.media_type : ctg
+    const itemType =
+      'media_type' in item
+        ? item.media_type
+        : (searchScope as Exclude<typeof searchScope, 'multi'>)
     const voteAverage: number = getMediaProp(item, 'vote_average') || 0
     const releaseDate: string | undefined =
       getMediaProp(item, 'release_date') || getMediaProp(item, 'first_air_date')

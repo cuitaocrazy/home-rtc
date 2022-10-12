@@ -1,3 +1,4 @@
+import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/server-runtime'
 
 import { generateMagnetLink, getSizeDisplay } from '~/utils'
@@ -189,19 +190,23 @@ export async function loader({ request }: LoaderArgs) {
       `https://apibay.org/q.php?q=${query}&cat=0`,
     ).then((res) => res.json())
 
-    return results.map((res) => ({
-      id: res.id,
-      name: res.name,
-      info_hash: res.info_hash,
-      leechers: res.leechers,
-      seeders: res.seeders,
-      num_files: res.num_files,
-      imdb: res.imdb,
-      category: getCategoryName(res.category),
-      added: new Date(+res.added * 1000).toLocaleString(),
-      size: getSizeDisplay(+res.size),
-      magnet_link: generateMagnetLink(res.info_hash, res.name),
-    }))
+    return json(
+      results.map((res) => ({
+        id: res.id,
+        name: res.name,
+        info_hash: res.info_hash,
+        leechers: res.leechers,
+        seeders: res.seeders,
+        num_files: res.num_files,
+        imdb: res.imdb,
+        category: getCategoryName(res.category),
+        added: new Date(+res.added * 1000).toLocaleString(),
+        size: getSizeDisplay(+res.size),
+        magnet_link: generateMagnetLink(res.info_hash, res.name),
+      })),
+      { headers: { 'Cache-Control': 'max-age=3600' } },
+    )
   }
-  return { message: 'Hello World' }
+
+  throw json({ error: 'No query provided' }, { status: 400 })
 }

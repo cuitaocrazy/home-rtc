@@ -26,7 +26,10 @@ export async function loader({ params }: LoaderArgs) {
   credits.crew = credits.crew.filter((item) => item.job === 'Director')
   credits.crew = aggObj(credits.crew, 'job')
 
-  return json({ movie, credits })
+  return json(
+    { movie, credits },
+    { headers: { 'Cache-Control': 'max-age=3600' } },
+  )
 }
 
 export default function Movie() {
