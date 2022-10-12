@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    volumes:
+      - ./bt/config:/config
+      - ./bt/downloads:/downloads

@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* .focus-ring {
+    @apply ring-team-current focus-within:ring-team-current hover:ring-team-current focus:ring-team-current group-hover:ring-team-current group-focus:ring-team-current ring-offset-4 ring-offset-white transition duration-300 focus-within:outline-none focus-within:ring-2 hover:ring-2 focus:outline-none focus:ring-2 disabled:ring-0 group-hover:ring-2 group-focus:ring-2 dark:ring-offset-gray-900;
+  } */
+}
+
+.load-req-at {
+  animation-duration: 0.5s;
+  animation-name: req;
+  animation-fill-mode: forwards;
+}
+
+@keyframes req {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 25%;
+  }
+}
+
+.load-res-at {
+  animation-duration: 0.5s;
+  animation-name: res;
+}
+
+@keyframes res {
+  from {
+    width: 25%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
