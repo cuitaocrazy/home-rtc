@@ -1,9 +1,12 @@
 import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useSearchParams } from '@remix-run/react'
+import React, { Suspense } from 'react'
 
 import Grid from '~/components/Grid'
 import SearchCard from '~/components/SearchCard'
+import useIntersection from '~/hook/useIntersection'
+import useTmdbQuery from '~/hook/useTmdbQuery'
 import { searchMovie, searchMulti } from '~/services/tmdb.server'
 import { searchTv } from '~/services/tmdb.server'
 import type {
@@ -47,39 +50,31 @@ export const meta: MetaFunction = () => {
   }
 }
 
-// 不是最佳实践，当使用infinity scroll时，回退不是很好，需要设计好多东西
-// 如果想恢复到infinity scroll，可以参考这个commit 5c5a143820c373115b03332ca60b2e47b4c99c6e
 export default function Search() {
   const [searchParams] = useSearchParams()
+
+  const { results, hasMore, isLoading, fetchMore } = useTmdbQuery()
+  const ref = useIntersection(fetchMore, isLoading, hasMore)
   const scope = getScope(searchParams.get('scope'))
-  const page = Number(searchParams.get('page') || 1)
-  const data = useLoaderData<typeof loader>()
-  const results = data.results
-  const cards = results.map((result) => {
-    return <SearchCard key={result.id} searchScope={scope} item={result} />
+
+  const Ct = React.lazy(() => import('~/components/Ct'))
+  const cards = results.map((result, idx) => {
+    return (
+      <SearchCard
+        key={result.id}
+        searchScope={scope}
+        item={result}
+        ref={idx === results.length - 1 ? ref : undefined}
+      />
+    )
   })
-  searchParams.set('page', (page - 1).toString())
-  const prevUrl = '/search?' + searchParams.toString()
-  searchParams.set('page', (page + 1).toString())
-  const nextUrl = '/search?' + searchParams.toString()
-  const btnClass =
-    'bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center'
 
   return (
     <div className="m-8">
+      <Suspense fallback={<div>loading...</div>}>
+        <Ct />
+      </Suspense>
       <Grid>{cards}</Grid>
-      <div className="flex justify-center gap-8 pb-36 pt-8">
-        {page !== 1 && (
-          <Link prefetch="intent" replace to={prevUrl} className={btnClass}>
-            prev
-          </Link>
-        )}
-        {page !== data.total_pages && (
-          <Link prefetch="intent" replace to={nextUrl} className={btnClass}>
-            next
-          </Link>
-        )}
-      </div>
     </div>
   )
 }

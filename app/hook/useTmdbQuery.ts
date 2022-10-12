@@ -7,14 +7,41 @@ import {
 import { useCallback, useRef, useState } from 'react'
 import { useEffect } from 'react'
 
-import type { SearchResults } from '~/services/tmdb_models'
+import type {
+  Movie,
+  Multi,
+  Person,
+  SearchResults,
+  TV,
+} from '~/services/tmdb_models'
 
-// 不是最佳实践，放弃使用
-function useTmdbQuery<T extends { id: number }>() {
-  const initResults = useLoaderData() as SearchResults<T>
+type Result = SearchResults<Multi | Movie | TV | Person>
+const emptyResult: Result = {
+  page: 0,
+  total_results: 0,
+  total_pages: 0,
+  results: [],
+}
+
+let flag = false
+let initData: Result = emptyResult
+function getInitData() {
+  if (typeof sessionStorage !== 'undefined' && !flag) {
+    flag = true
+
+    const data = sessionStorage.getItem('searchResults')
+    if (data) {
+      initData = JSON.parse(data)
+    }
+  }
+
+  return initData
+}
+function useTmdbQuery() {
+  const initResults = emptyResult
   const [searchParams] = useSearchParams()
   const [results, setResults] = useState(initResults)
-  const { load, data, type } = useFetcher<SearchResults<T>>()
+  const { load, data, type } = useFetcher<Result>()
   const resultRef = useRef(results)
   const setRef = useRef(new Set(initResults.results.map((r) => r.id)))
   const hasMore = results.page < results.total_pages
@@ -22,29 +49,36 @@ function useTmdbQuery<T extends { id: number }>() {
     type === 'normalLoad' ||
     (resultRef.current !== initResults && resultRef.current.page !== data?.page)
 
-  useBeforeUnload(() => {
-    console.log('unloading')
-  })
+  console.log(results)
   useEffect(() => {
-    resultRef.current = initResults
-    setRef.current = new Set(initResults.results.map((r) => r.id))
-    setResults(initResults)
-  }, [initResults])
+    resultRef.current = getInitData()
+    setRef.current = new Set(resultRef.current.results.map((r) => r.id))
+    setResults(getInitData())
+  }, [])
 
-  useEffect(() => {
-    if (data) {
-      resultRef.current = {
-        ...resultRef.current,
-        page: data.page,
-        results: [
-          ...resultRef.current.results,
-          ...data.results.filter((r) => !setRef.current.has(r.id)),
-        ],
-      }
-      data.results.forEach((r) => setRef.current.add(r.id))
-      setResults(resultRef.current)
-    }
-  }, [data])
+  // useBeforeUnload(() => {
+  //   console.log('unloading')
+  // })
+  // useEffect(() => {
+  //   resultRef.current = initResults
+  //   setRef.current = new Set(initResults.results.map((r) => r.id))
+  //   setResults(initResults)
+  // }, [initResults])
+
+  // useEffect(() => {
+  //   if (data) {
+  //     resultRef.current = {
+  //       ...resultRef.current,
+  //       page: data.page,
+  //       results: [
+  //         ...resultRef.current.results,
+  //         ...data.results.filter((r) => !setRef.current.has(r.id)),
+  //       ],
+  //     }
+  //     data.results.forEach((r) => setRef.current.add(r.id))
+  //     setResults(resultRef.current)
+  //   }
+  // }, [data])
 
   const fetchMore = useCallback(() => {
     searchParams.set('page', (resultRef.current.page + 1).toString())

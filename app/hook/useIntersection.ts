@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react'
 
-// 不是最佳实践，放弃使用
 export default function useIntersection<T extends HTMLElement>(
   callback: () => void,
   isLoading: boolean,
