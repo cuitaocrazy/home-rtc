@@ -71,6 +71,7 @@ function useData() {
 function useTmdbQuery() {
   const results = useData()
   const { load, data, type } = useFetcher<Result>()
+  const [searchParams] = useSearchParams()
   // const initResults = emptyResult
   // const [searchParams] = useSearchParams()
   // const [results, setResults] = useState(initResults)
