@@ -23,38 +23,71 @@ const emptyResult: Result = {
   results: [],
 }
 
-let flag = false
-let initData: Result = emptyResult
-function getInitData() {
-  if (typeof sessionStorage !== 'undefined' && !flag) {
-    flag = true
+const DATA_KEY = 'searchResults'
 
-    const data = sessionStorage.getItem('searchResults')
-    if (data) {
-      initData = JSON.parse(data)
-    }
-  }
+function useMounted() {
+  const [mounted, setMounted] = useState(false)
 
-  return initData
-}
-function useTmdbQuery() {
-  const initResults = emptyResult
-  const [searchParams] = useSearchParams()
-  const [results, setResults] = useState(initResults)
-  const { load, data, type } = useFetcher<Result>()
-  const resultRef = useRef(results)
-  const setRef = useRef(new Set(initResults.results.map((r) => r.id)))
-  const hasMore = results.page < results.total_pages
-  const isLoading =
-    type === 'normalLoad' ||
-    (resultRef.current !== initResults && resultRef.current.page !== data?.page)
-
-  console.log(results)
   useEffect(() => {
-    resultRef.current = getInitData()
-    setRef.current = new Set(resultRef.current.results.map((r) => r.id))
-    setResults(getInitData())
+    setMounted(true)
   }, [])
+
+  return mounted
+}
+
+let inited = false
+
+function useData() {
+  const mounted = useMounted()
+  const [data, setData] = useState(emptyResult)
+
+  useEffect(() => {
+    if (mounted && !inited) {
+      inited = true
+      const json = sessionStorage.getItem(DATA_KEY)
+      if (json) {
+        setData(JSON.parse(json))
+      }
+    }
+  }, [mounted])
+
+  return data
+}
+
+// let flag = false
+// let initData: Result = emptyResult
+// function getInitData() {
+//   if (typeof sessionStorage !== 'undefined' && !flag) {
+//     flag = true
+
+//     const data = sessionStorage.getItem('searchResults')
+//     if (data) {
+//       initData = JSON.parse(data)
+//     }
+//   }
+
+//   return initData
+// }
+function useTmdbQuery() {
+  const results = useData()
+  const { load, data, type } = useFetcher<Result>()
+  // const initResults = emptyResult
+  // const [searchParams] = useSearchParams()
+  // const [results, setResults] = useState(initResults)
+  // const { load, data, type } = useFetcher<Result>()
+  // const resultRef = useRef(results)
+  // const setRef = useRef(new Set(initResults.results.map((r) => r.id)))
+  // const hasMore = results.page < results.total_pages
+  // const isLoading =
+  //   type === 'normalLoad' ||
+  //   (resultRef.current !== initResults && resultRef.current.page !== data?.page)
+
+  // console.log(results)
+  // useEffect(() => {
+  //   resultRef.current = getInitData()
+  //   setRef.current = new Set(resultRef.current.results.map((r) => r.id))
+  //   setResults(getInitData())
+  // }, [])
 
   // useBeforeUnload(() => {
   //   console.log('unloading')
@@ -80,17 +113,17 @@ function useTmdbQuery() {
   //   }
   // }, [data])
 
-  const fetchMore = useCallback(() => {
-    searchParams.set('page', (resultRef.current.page + 1).toString())
-    load(`/search?` + searchParams.toString())
-  }, [load, searchParams])
+  // const fetchMore = useCallback(() => {
+  //   searchParams.set('page', (resultRef.current.page + 1).toString())
+  //   load(`/search?` + searchParams.toString())
+  // }, [load, searchParams])
 
-  return {
-    results: results.results,
-    hasMore,
-    fetchMore,
-    isLoading,
-  }
+  // return {
+  //   results: results.results,
+  //   hasMore,
+  //   fetchMore,
+  //   isLoading,
+  // }
 }
 
 export default useTmdbQuery
