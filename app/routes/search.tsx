@@ -1,14 +1,11 @@
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
-import { Link, useLoaderData, useSearchParams } from '@remix-run/react'
-import React, { Suspense } from 'react'
+import type { MetaFunction } from '@remix-run/node'
+import { useSearchParams } from '@remix-run/react'
+import { Suspense, useMemo } from 'react'
 
 import Grid from '~/components/Grid'
 import SearchCard from '~/components/SearchCard'
-import useIntersection from '~/hook/useIntersection'
-import useTmdbQuery from '~/hook/useTmdbQuery2'
-import { searchMovie, searchMulti } from '~/services/tmdb.server'
-import { searchTv } from '~/services/tmdb.server'
+import type { InfinityQueryOptions } from '~/hook/useInfinityQuery'
+import useInfinityQuery from '~/hook/useInfinityQuery'
 import type {
   Movie,
   Multi,
@@ -16,10 +13,6 @@ import type {
   SearchResults,
   TV,
 } from '~/services/tmdb_models'
-
-export const handle = {
-  unneededScrollRestoration: true,
-}
 
 export const meta: MetaFunction = () => {
   return {
@@ -31,13 +24,43 @@ function getScope(scope: string | null) {
   return (scope || 'multi') as 'multi' | 'movie' | 'tv'
 }
 
+type Result = SearchResults<Multi | Movie | TV | Person>
+
 export default function Search() {
+  const infinityOptions = useMemo<InfinityQueryOptions<Result, Result>>(() => {
+    return {
+      reducer: (state, data) => {
+        if (state) {
+          const set = new Set(state.results.map((r) => r.id))
+
+          return {
+            ...data,
+            results: state.results.concat(
+              data.results.filter((r) => !set.has(r.id)),
+            ),
+          }
+        }
+
+        return data
+      },
+      getNextFetchUrl: (stata, location) => {
+        if (stata && stata.page < stata.total_pages) {
+          const params = new URLSearchParams(location.search)
+          params.set('page', String(stata.page + 1))
+          return '/api/search?' + params.toString()
+        }
+
+        return '/api/search' + location.search
+      },
+      hasMore: (state) => {
+        return !!(state && state.page < state.total_pages)
+      },
+    }
+  }, [])
   const [searchParams] = useSearchParams()
-  const { results, hasMore, isLoading, fetchMore } = useTmdbQuery()
-  const ref = useIntersection(fetchMore, isLoading, hasMore)
+  const { results, ref } = useInfinityQuery(infinityOptions)
   const scope = getScope(searchParams.get('scope'))
-  // const Ct = React.lazy(() => import('~/components/Ct'))
-  const cards = results.results.map((result, idx) => {
+  const cards = results?.results.map((result, idx) => {
     return (
       <SearchCard
         key={result.id}
@@ -49,7 +72,6 @@ export default function Search() {
   })
   return (
     <div className="m-8">
-      <button onClick={() => fetchMore()}>fetchMore</button>
       <Suspense fallback={<div>loading...</div>}>{/* <Ct /> */}</Suspense>
       <Grid>{cards}</Grid>
     </div>

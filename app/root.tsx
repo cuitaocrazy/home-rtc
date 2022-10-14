@@ -6,7 +6,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useMatches,
 } from '@remix-run/react'
 
 import Top from './components/Top'
@@ -23,11 +22,6 @@ export const meta: MetaFunction = () => ({
 })
 
 export default function App() {
-  const matches = useMatches()
-  const unneededScrollRestoration = matches.some(
-    (match) => match.handle?.unneededScrollRestoration,
-  )
-
   return (
     <html lang="en">
       <head>
@@ -37,7 +31,7 @@ export default function App() {
       <body>
         <Top />
         <Outlet />
-        {unneededScrollRestoration || <ScrollRestoration />}
+        <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>

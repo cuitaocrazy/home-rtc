@@ -1,10 +1,7 @@
 export default function Grid({
   min = 192,
   children,
-}: {
-  min?: number
-  children: React.ReactNode
-}) {
+}: React.PropsWithChildren<{ min?: number }>) {
   return (
     <div
       className="grid justify-items-center gap-y-4"
