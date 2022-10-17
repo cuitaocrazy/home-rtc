@@ -160,8 +160,8 @@ export type SearchResults<T> = {
 export type SearchScope = 'multi' | 'movie' | 'tv' | 'person'
 
 export function getMediaProp<T>(
-  item: Movie | TV | Person,
-  propName: keyof Movie | keyof TV | keyof Person,
+  item: Movie | TV | Person | Multi,
+  propName: keyof Movie | keyof TV | keyof Person | keyof Multi,
 ): T {
   return (item as any)[propName]
 }
