@@ -4,6 +4,7 @@ import type {
   MovieCredits,
   MovieDetails,
   Multi,
+  Person,
   PersonDetails,
   PersonMovieCredits,
   PersonTVCredits,
@@ -35,6 +36,14 @@ export async function searchTv(searchParams: URLSearchParams) {
   const aipParams = getApiParams('search', 'Tv', searchParams)
 
   return search<TV>(aipParams)
+}
+
+export async function searchPerson(searchParams: URLSearchParams) {
+  const query = searchParams.get('query')
+  if (!query) return { page: 0, total_results: 0, total_pages: 0, results: [] }
+  const aipParams = getApiParams('search', 'Person', searchParams)
+
+  return search<Person>(aipParams)
 }
 
 async function search<T>(apiParams: {
@@ -158,4 +167,14 @@ export async function getTvExtenalIds(tvId: number): Promise<any> {
   return data
 }
 
-// export async function getMovieDiscover()
+export async function discoverMovie(searchParams: URLSearchParams) {
+  const aipParams = getApiParams('discover', 'Movie', searchParams)
+
+  return search<Movie>(aipParams)
+}
+
+export async function discoverTv(searchParams: URLSearchParams) {
+  const aipParams = getApiParams('discover', 'Tv', searchParams)
+
+  return search<TV>(aipParams)
+}

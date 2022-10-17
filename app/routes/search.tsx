@@ -21,7 +21,7 @@ export const meta: MetaFunction = () => {
 }
 
 function getScope(scope: string | null) {
-  return (scope || 'multi') as 'multi' | 'movie' | 'tv'
+  return (scope || 'multi') as 'multi' | 'movie' | 'tv' | 'person'
 }
 
 type Result = SearchResults<Multi | Movie | TV | Person>

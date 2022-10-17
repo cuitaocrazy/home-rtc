@@ -1,58 +1,154 @@
-export type Movie = {
+type MergeIntersection<T> = {
+  [K in keyof T]: T[K]
+}
+
+type Intersection<T extends any[]> = T extends [infer A, ...infer O]
+  ? A & Intersection<O>
+  : {}
+
+type BaseField = {
   id: number
-  poster_path?: string
-  adult?: boolean
-  overview?: string
-  release_date?: string
-  original_title?: string
-  genre_ids?: number[]
-  original_language?: string
+  poster_path: string | null
+  adult: boolean
+  overview: string
+  release_date: string
+  original_title: string
+  genre_ids: number[]
+  original_language: string
   title: string
-  backdrop_path?: string
-  popularity?: number
-  vote_count?: number
-  video?: boolean
-  vote_average?: number
-}
+  backdrop_path: string | null
+  popularity: number
+  vote_count: number
+  video: boolean
+  vote_average: number
 
-export type TV = {
-  id: number
-  poster_path?: string
-  popularity?: number
-  overview?: string
-  backdrop_path?: string
-  vote_average?: number
   first_air_date: string
-  origin_country?: string[]
-  genre_ids?: number[]
-  original_language?: string
-  vote_count?: number
+  origin_country: string[]
   name: string
-  original_name?: string
-}
+  original_name: string
 
-export type Person = {
-  id: number
-  profile_path?: string
-  adult?: boolean
-  known_for: (Movie | TV)[]
-  name: string
-  popularity?: number
+  profile_path: string | null
   known_for_department?: string
+
+  iso_3166_1: string
+  iso_639_1: string
+  budget: number
+  homepage: string
+  imdb_id: string
+  revenue: number
+  runtime: number
+  status: string
+  tagline: string
+
+  logo_path: string | null
+
+  credit_id: string
+  department: string
+  job: string
+
+  gender: number
+
+  production_code: string
+  episode_number: number
+  air_date: string
+  still_path: string | null
+  season_number: number
+  episode_count: number
+
+  number_of_episodes: number
+  number_of_seasons: number
+  languages: string[]
+  in_production: boolean
+  last_air_date: string
+  type: string
+  episode_run_time: number[]
+
+  birthday: string
+  deathday: string
+  also_known_as: string[]
+  biography: string
+  place_of_birth: string
+
+  character: string
+
+  order: number
 }
 
-export type WithMediaType<T> = T extends Movie
-  ? Movie & { media_type: 'movie' }
-  : T extends TV
-  ? TV & { media_type: 'tv' }
-  : T extends Person
-  ? Person & { media_type: 'person' }
-  : never
+type TmdbTypeCreator<
+  RK extends keyof BaseField,
+  OK extends Exclude<keyof BaseField, RK> = never,
+  EXT extends any[] = [],
+> = MergeIntersection<
+  {
+    [K in RK]: BaseField[K]
+  } & {
+    [K in OK]?: BaseField[K]
+  } & Intersection<EXT>
+>
+
+type RTypeHolder<RK extends keyof BaseField> = RK
+type OTypeHolder<
+  RK extends keyof BaseField,
+  OK extends Exclude<keyof BaseField, RK> = never,
+> = OK
+
+type RMovieProps = RTypeHolder<
+  'id' | 'poster_path' | 'adult' | 'title' | 'backdrop_path'
+>
+type OMovieProps = OTypeHolder<
+  RMovieProps,
+  | 'overview'
+  | 'release_date'
+  | 'original_title'
+  | 'genre_ids'
+  | 'original_language'
+  | 'popularity'
+  | 'vote_count'
+  | 'video'
+  | 'vote_average'
+>
+
+export type Movie = TmdbTypeCreator<RMovieProps, OMovieProps>
+
+type RTVProps = RTypeHolder<'id' | 'poster_path' | 'backdrop_path' | 'name'>
+type OTVProps = OTypeHolder<
+  RTVProps,
+  | 'popularity'
+  | 'overview'
+  | 'vote_average'
+  | 'first_air_date'
+  | 'origin_country'
+  | 'genre_ids'
+  | 'original_language'
+  | 'vote_count'
+  | 'original_name'
+>
+
+export type TV = TmdbTypeCreator<RTVProps, OTVProps>
+
+type RPersonProps = RTypeHolder<'id' | 'profile_path' | 'name' | 'adult'>
+type OPersonProps = OTypeHolder<
+  RPersonProps,
+  'popularity' | 'known_for_department'
+>
+
+export type Person = TmdbTypeCreator<
+  RPersonProps,
+  OPersonProps,
+  [
+    {
+      known_for: (
+        | TmdbTypeCreator<RMovieProps, OMovieProps, [{ media_type: 'movie' }]>
+        | TmdbTypeCreator<RTVProps, OTVProps, [{ media_type: 'tv' }]>
+      )[]
+    },
+  ]
+>
 
 export type Multi =
-  | WithMediaType<Movie>
-  | WithMediaType<TV>
-  | WithMediaType<Person>
+  | TmdbTypeCreator<RMovieProps, OMovieProps, [{ media_type: 'movie' }]>
+  | TmdbTypeCreator<RTVProps, OTVProps, [{ media_type: 'tv' }]>
+  | TmdbTypeCreator<RPersonProps, OPersonProps, [{ media_type: 'person' }]>
 
 export type SearchResults<T> = {
   page: number
@@ -70,297 +166,269 @@ export function getMediaProp<T>(
   return (item as any)[propName]
 }
 
-export type MovieDetails = {
-  adult?: boolean
-  backdrop_path?: string
-  belongs_to_collection?: {
-    id: number
-    name: string
-    poster_path: string
-    backdrop_path: string
-  }
-  budget?: number
-  genres?: {
-    id: number
-    name: string
-  }[]
-  homepage?: string
-  id: number
-  imdb_id?: string
-  original_language?: string
-  original_title?: string
-  overview?: string
-  popularity?: number
-  poster_path?: string
-  production_companies?: {
-    id: number
-    logo_path?: string
-    name: string
-    origin_country: string
-  }[]
-  production_countries?: {
-    iso_3166_1: string
-    name: string
-  }[]
-  release_date?: string
-  revenue?: number
-  runtime?: number
-  spoken_languages?: {
-    iso_639_1: string
-    name: string
-  }[]
-  status?: string
-  tagline?: string
-  title?: string
-  video?: boolean
-  vote_average?: number
-  vote_count?: number
-}
+type RCompanyProps = RTypeHolder<'id' | 'logo_path' | 'name'>
 
-export type TVDetails = {
-  backdrop_path?: string
-  created_by?: {
-    id: number
-    credit_id: string
-    name: string
-    gender: number
-    profile_path?: string
-  }[]
-  episode_run_time?: number[]
-  first_air_date?: string
-  genres?: {
-    id: number
-    name: string
-  }[]
-  homepage?: string
-  id: number
-  in_production?: boolean
-  languages?: string[]
-  last_air_date?: string
-  last_episode_to_air?: {
-    air_date?: string
-    episode_number: number
-    id: number
-    name: string
-    overview?: string
-    production_code?: string
-    season_number: number
-    still_path?: string
-    vote_average?: number
-    vote_count?: number
-  }
-  name?: string
-  next_episode_to_air?: {
-    air_date?: string
-    episode_number: number
-    id: number
-    name: string
-    overview?: string
-    production_code?: string
-    season_number: number
-    still_path?: string
-    vote_average?: number
-    vote_count?: number
-  }
-  networks?: {
-    name: string
-    id: number
-    logo_path?: string
-    origin_country: string
-  }[]
-  number_of_episodes?: number
-  number_of_seasons?: number
-  origin_country?: string[]
-  original_language?: string
-  original_name?: string
-  overview?: string
-  popularity?: number
-  poster_path?: string
-  production_companies?: {
-    id: number
-    logo_path?: string
-    name: string
-    origin_country: string
-  }[]
-  seasons?: {
-    air_date?: string
-    episode_count: number
-    id: number
-    name: string
-    overview?: string
-    poster_path?: string
-    season_number: number
-  }[]
-  spoken_languages?: {
-    english_name: string
-    iso_639_1: string
-    name: string
-  }[]
-  status?: string
-  tagline?: string
-  type?: string
-  vote_average?: number
-  vote_count?: number
-}
+type Company = TmdbTypeCreator<
+  RCompanyProps,
+  never,
+  [
+    {
+      origin_country: string
+    },
+  ]
+>
 
-export type PersonDetails = {
-  birthday?: string
-  known_for_department?: string
-  deathday?: string
-  id: number
-  name?: string
-  also_known_as?: string[]
-  gender?: number
-  biography?: string
-  popularity?: number
-  place_of_birth?: string
-  profile_path?: string
-  adult?: boolean
-  imdb_id?: string
-  homepage?: string
-}
+type RCountryProps = RTypeHolder<'iso_3166_1' | 'name'>
 
-export type PersonMovieCredits = {
-  cast: {
-    character?: string
-    credit_id?: string
-    release_date?: string
-    vote_count?: number
-    video?: boolean
-    adult?: boolean
-    vote_average?: number
-    title?: string
-    genre_ids?: number[]
-    original_language?: string
-    original_title?: string
-    popularity?: number
-    id: number
-    backdrop_path?: string
-    overview?: string
-    poster_path?: string
-  }[]
-  crew: {
-    id: number
-    department?: string
-    original_language?: string
-    original_title?: string
-    job?: string
-    overview?: string
-    video?: boolean
-    poster_path?: string
-    backdrop_path?: string
-    title?: string
-    popularity?: number
-    genre_ids?: number[]
-    vote_average?: number
-    adult?: boolean
-    release_date?: string
-    credit_id?: string
-  }[]
-  id: number
-}
+type Country = TmdbTypeCreator<RCountryProps>
 
-export type PersonTVCredits = {
-  cast: {
-    credit_id?: string
-    original_name?: string
-    id: number
-    genre_ids?: number[]
-    character?: string
-    name?: string
-    poster_path?: string
-    vote_count?: number
-    vote_average?: number
-    popularity?: number
-    episode_count?: number
-    original_language?: string
-    first_air_date?: string
-    backdrop_path?: string
-    overview?: string
-    origin_country?: string[]
-    adult?: boolean
-  }[]
-  crew: {
-    id: number
-    department?: string
-    original_language?: string
-    episode_count?: number
-    job?: string
-    overview?: string
-    genre_ids?: number[]
-    name?: string
-    first_air_date?: string
-    backdrop_path?: string
-    popularity?: number
-    vote_count?: number
-    vote_average?: number
-    poster_path?: string
-    credit_id?: string
-    adult?: boolean
-  }[]
-  id: number
-}
+type RLanguagesProps = RTypeHolder<'iso_639_1' | 'name'>
 
-export type MovieCredits = {
-  cast: {
-    adult?: boolean
-    gender?: number
-    id: number
-    known_for_department?: string
-    name?: string
-    original_name?: string
-    popularity?: number
-    profile_path?: string
-    cast_id?: number
-    character?: string
-    credit_id?: string
-    order?: number
-  }[]
-  crew: {
-    adult?: boolean
-    gender?: number
-    id: number
-    known_for_department?: string
-    name?: string
-    original_name?: string
-    popularity?: number
-    profile_path?: string
-    credit_id?: string
-    department?: string
-    job?: string
-  }[]
-  id: number
-}
+type Language = TmdbTypeCreator<RLanguagesProps>
 
-export type TVCredits = {
-  cast: {
-    adult?: boolean
-    gender?: number
-    id: number
-    known_for_department?: string
-    name?: string
-    original_name?: string
-    popularity?: number
-    profile_path?: string
-    character?: string
-    credit_id?: string
-    order?: number
-  }[]
-  crew: {
-    adult?: boolean
-    gender?: number
-    id: number
-    known_for_department?: string
-    name?: string
-    original_name?: string
-    popularity?: number
-    profile_path?: string
-    credit_id?: string
-    department?: string
-    job?: string
-  }[]
-  id: number
-}
+type RGenreProps = RTypeHolder<'id' | 'name'>
+
+type Genre = TmdbTypeCreator<RGenreProps>
+
+type RMovieDetailsProps = RTypeHolder<RMovieProps>
+type OMovieDetailsProps = OTypeHolder<
+  RMovieDetailsProps,
+  | Exclude<OMovieProps, 'genre_ids'>
+  | 'budget'
+  | 'homepage'
+  | 'imdb_id'
+  | 'revenue'
+  | 'runtime'
+  | 'status'
+  | 'tagline'
+>
+
+export type MovieDetails = TmdbTypeCreator<
+  RMovieDetailsProps,
+  OMovieDetailsProps,
+  [
+    {
+      genres: Genre[]
+      production_companies: Company[]
+      production_countries: Country[]
+      spoken_languages: Language[]
+    },
+  ]
+>
+
+type RCreatorProps = RTypeHolder<
+  'id' | 'name' | 'credit_id' | 'gender' | 'profile_path'
+>
+
+type Creator = TmdbTypeCreator<RCreatorProps>
+
+type REpisodeProps = RTypeHolder<
+  | 'id'
+  | 'name'
+  | 'air_date'
+  | 'episode_number'
+  | 'overview'
+  | 'production_code'
+  | 'season_number'
+  | 'still_path'
+  | 'vote_average'
+  | 'vote_count'
+>
+
+type Episode = TmdbTypeCreator<REpisodeProps>
+
+type RNetworkProps = RTypeHolder<'id' | 'name' | 'logo_path'>
+
+type Network = TmdbTypeCreator<
+  RNetworkProps,
+  never,
+  [
+    {
+      origin_country: string
+    },
+  ]
+>
+
+type RSeasonProps = RTypeHolder<
+  | 'id'
+  | 'air_date'
+  | 'episode_count'
+  | 'overview'
+  | 'poster_path'
+  | 'season_number'
+>
+
+type Season = TmdbTypeCreator<RSeasonProps>
+
+type RTVDetailsProps = RTypeHolder<RTVProps>
+type OTVDetailsProps = OTypeHolder<
+  RTVDetailsProps,
+  | Exclude<OTVProps, 'genre_ids'>
+  | 'episode_run_time'
+  | 'homepage'
+  | 'in_production'
+  | 'languages'
+  | 'last_air_date'
+  | 'number_of_episodes'
+  | 'number_of_seasons'
+  | 'status'
+  | 'tagline'
+  | 'type'
+>
+
+export type TVDetails = TmdbTypeCreator<
+  RTVDetailsProps,
+  OTVDetailsProps,
+  [
+    {
+      created_by: Creator[]
+      genres: Genre[]
+      last_episode_to_air: Episode
+      next_episode_to_air: Episode
+      networks: Network[]
+      production_companies: Company[]
+      seasons: Season[]
+      spoken_languages: Language[]
+    },
+  ]
+>
+
+type RPersonDetailsProps = RTypeHolder<RPersonProps>
+type OPersonDetailsProps = OTypeHolder<
+  RPersonDetailsProps,
+  | OPersonProps
+  | 'birthday'
+  | 'deathday'
+  | 'also_known_as'
+  | 'gender'
+  | 'biography'
+  | 'place_of_birth'
+  | 'imdb_id'
+  | 'homepage'
+>
+
+export type PersonDetails = TmdbTypeCreator<
+  RPersonDetailsProps,
+  OPersonDetailsProps
+>
+
+type RPersonMovieCastProps = RTypeHolder<RMovieProps | 'credit_id'>
+type OPersonMovieCastProps = OTypeHolder<
+  RPersonMovieCastProps,
+  OMovieProps | 'character'
+>
+
+export type PersonMovieCast = TmdbTypeCreator<
+  RPersonMovieCastProps,
+  OPersonMovieCastProps
+>
+
+type RPersonMovieCrewProps = RTypeHolder<RMovieProps | 'credit_id'>
+type OPersonMovieCrewProps = OTypeHolder<
+  RPersonMovieCrewProps,
+  OMovieProps | 'department' | 'job'
+>
+
+export type PersonMovieCrew = TmdbTypeCreator<
+  RPersonMovieCrewProps,
+  OPersonMovieCrewProps
+>
+
+export type PersonMovieCredits = TmdbTypeCreator<
+  'id',
+  never,
+  [
+    {
+      cast: PersonMovieCast[]
+      crew: PersonMovieCrew[]
+    },
+  ]
+>
+
+type RPersonTVCastProps = RTypeHolder<RTVProps | 'credit_id'>
+type OPersonTVCastProps = OTypeHolder<
+  RPersonTVCastProps,
+  OTVProps | 'character' | 'episode_count' | 'adult'
+>
+
+export type PersonTVCast = TmdbTypeCreator<
+  RPersonTVCastProps,
+  OPersonTVCastProps
+>
+
+type RPersonTVCrewProps = RTypeHolder<RTVProps | 'credit_id'>
+type OPersonTVCrewProps = OTypeHolder<
+  RPersonTVCrewProps,
+  | Exclude<OTVProps, 'origin_country' | 'original_name'>
+  | 'department'
+  | 'job'
+  | 'episode_count'
+  | 'adult'
+>
+
+export type PersonTVCrew = TmdbTypeCreator<
+  RPersonTVCrewProps,
+  OPersonTVCrewProps
+>
+
+export type PersonTVCredits = TmdbTypeCreator<
+  'id',
+  never,
+  [
+    {
+      cast: PersonTVCast[]
+      crew: PersonTVCrew[]
+    },
+  ]
+>
+
+type RMovieCastProps = RTypeHolder<RPersonProps | 'credit_id'>
+type OMovieCastProps = OTypeHolder<
+  RMovieCastProps,
+  OPersonProps | 'character' | 'order' | 'gender' | 'original_name'
+>
+
+type MovieCast = TmdbTypeCreator<RMovieCastProps, OMovieCastProps>
+
+type RMovieCrewProps = RTypeHolder<RPersonProps | 'credit_id'>
+type OMovieCrewProps = OTypeHolder<
+  RMovieCrewProps,
+  OPersonProps | 'department' | 'job' | 'original_name' | 'gender'
+>
+
+type MovieCrew = TmdbTypeCreator<RMovieCrewProps, OMovieCrewProps>
+
+export type MovieCredits = TmdbTypeCreator<
+  'id',
+  never,
+  [
+    {
+      cast: MovieCast[]
+      crew: MovieCrew[]
+    },
+  ]
+>
+
+type RTVCastProps = RTypeHolder<RMovieCastProps>
+type OTVCastProps = OTypeHolder<RTVCastProps, OMovieCastProps>
+
+type TVCast = TmdbTypeCreator<RTVCastProps, OTVCastProps>
+
+type RTVCrewProps = RTypeHolder<RMovieCrewProps>
+type OTVCrewProps = OTypeHolder<RTVCrewProps, OMovieCrewProps>
+
+type TVCrew = TmdbTypeCreator<RTVCrewProps, OTVCrewProps>
+
+export type TVCredits = TmdbTypeCreator<
+  'id',
+  never,
+  [
+    {
+      cast: TVCast[]
+      crew: TVCrew[]
+    },
+  ]
+>
 
 export type ExtennalIds = {
   imdb_id?: string

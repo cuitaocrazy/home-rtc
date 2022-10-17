@@ -31,11 +31,14 @@ export async function loader({ params }: LoaderArgs) {
   tvCredits.cast = aggObj(tvCredits.cast, 'character')
   tvCredits.crew = aggObj(tvCredits.crew, 'job')
 
-  return json({
-    person,
-    movieCredits,
-    tvCredits,
-  })
+  return json(
+    {
+      person,
+      movieCredits,
+      tvCredits,
+    },
+    { headers: { 'Cache-Control': 'max-age=3600' } },
+  )
 }
 
 export default function Person() {

@@ -1,7 +1,12 @@
 import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 
-import { searchMovie, searchMulti, searchTv } from '~/services/tmdb.server'
+import {
+  searchMovie,
+  searchMulti,
+  searchPerson,
+  searchTv,
+} from '~/services/tmdb.server'
 import type {
   Movie,
   Multi,
@@ -11,7 +16,7 @@ import type {
 } from '~/services/tmdb_models'
 
 function getScope(scope: string | null) {
-  return (scope || 'multi') as 'multi' | 'movie' | 'tv'
+  return (scope || 'multi') as 'multi' | 'movie' | 'tv' | 'person'
 }
 
 export async function loader(args: LoaderArgs) {
@@ -26,6 +31,8 @@ export async function loader(args: LoaderArgs) {
     results = await searchTv(searchParams)
   } else if (scope === 'movie') {
     results = await searchMovie(searchParams)
+  } else if (scope === 'person') {
+    results = await searchPerson(searchParams)
   } else {
     results = await searchMulti(searchParams)
   }

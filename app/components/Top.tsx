@@ -43,6 +43,7 @@ export default function Top() {
           <option value="multi">Multi</option>
           <option value="movie">Movie</option>
           <option value="tv">TV</option>
+          <option value="person">Person</option>
         </select>
         <input
           type="checkbox"
