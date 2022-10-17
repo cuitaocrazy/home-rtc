@@ -13,10 +13,15 @@ import { getImageUrl } from '~/utils'
 import { StarIcon } from './icons'
 import LinkCard from './LinkCard'
 
-interface SearchCard {
-  item: Multi | Movie | TV | Person
-  searchScope: SearchScope
-}
+type SearchCard =
+  | {
+      item: Multi
+      searchScope: Extract<SearchScope, 'multi'>
+    }
+  | {
+      item: Movie | TV | Person
+      searchScope: Exclude<SearchScope, 'multi'>
+    }
 
 export default React.forwardRef<HTMLElement, SearchCard>(
   function SimpleMovieInfoCard({ item, searchScope }, ref) {
@@ -24,10 +29,7 @@ export default React.forwardRef<HTMLElement, SearchCard>(
       getMediaProp(item, 'title') || getMediaProp(item, 'name')
     const imagePath: string | undefined =
       getMediaProp(item, 'poster_path') || getMediaProp(item, 'profile_path')
-    const itemType =
-      'media_type' in item
-        ? item.media_type
-        : (searchScope as Exclude<typeof searchScope, 'multi'>)
+    const itemType = searchScope === 'multi' ? item.media_type : searchScope
     const voteAverage: number = getMediaProp(item, 'vote_average') || 0
     const releaseDate: string | undefined =
       getMediaProp(item, 'release_date') || getMediaProp(item, 'first_air_date')
