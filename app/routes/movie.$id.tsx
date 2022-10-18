@@ -103,12 +103,10 @@ export default function Movie() {
         {data.credits.cast.map((cast) => {
           return (
             <LinkCard
-              id={cast.id}
               key={cast.id}
               alt={cast.name || ''}
               img={getImageUrl(cast.profile_path, 92)}
-              adult={cast.adult || false}
-              type="person"
+              to={`/person/${cast.id}`}
               cardWidth="w-24"
               imgHeight="h-32"
             >
@@ -125,12 +123,10 @@ export default function Movie() {
         {data.credits.crew.map((crew) => {
           return (
             <LinkCard
-              id={crew.id}
               key={crew.id}
               alt={crew.name || ''}
               img={getImageUrl(crew.profile_path, 92)}
-              adult={crew.adult || false}
-              type="person"
+              to={`/person/${crew.id}`}
               cardWidth="w-24"
               imgHeight="h-32"
             >

@@ -1,4 +1,5 @@
-import React from 'react'
+import clsx from 'clsx'
+import React, { useMemo } from 'react'
 
 import type {
   Movie,
@@ -10,7 +11,7 @@ import type {
 import { getMediaProp } from '~/services/tmdb_models'
 import { getImageUrl } from '~/utils'
 
-import { StarIcon } from './icons'
+import { MovieIcon, PersonIcon, StarIcon, TVIcon } from './icons'
 import LinkCard from './LinkCard'
 
 type SearchCard =
@@ -35,14 +36,34 @@ export default React.forwardRef<HTMLElement, SearchCard>(
       getMediaProp(item, 'release_date') || getMediaProp(item, 'first_air_date')
     const adult: boolean = getMediaProp(item, 'adult')
 
+    const icon = useMemo(() => {
+      const cls = clsx(
+        'h-8 w-8',
+        'absolute right-2 top-2 rounded-full border-2 bg-gray-400 p-1 bg-opacity-50 text-gray-700',
+        {
+          'border-yellow-300': adult,
+          'border-transparent': !adult,
+        },
+      )
+
+      switch (itemType) {
+        case 'movie':
+          return <MovieIcon className={cls} />
+        case 'tv':
+          return <TVIcon className={cls} />
+        case 'person':
+          return <PersonIcon className={cls} />
+        default:
+          return <MovieIcon className={cls} />
+      }
+    }, [adult, itemType])
+
     return (
       <LinkCard
         ref={ref as React.RefObject<HTMLAnchorElement>}
         alt={title}
-        adult={adult}
-        type={itemType}
+        to={`/${itemType}/${item.id}`}
         img={getImageUrl(imagePath, 185)}
-        id={item.id}
         prefetch
         // newTag={true}
       >
@@ -56,6 +77,7 @@ export default React.forwardRef<HTMLElement, SearchCard>(
             {voteAverage}
           </p>
         </div>
+        {icon}
       </LinkCard>
     )
   },

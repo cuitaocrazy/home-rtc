@@ -251,6 +251,7 @@ type Network = TmdbTypeCreator<
 
 type RSeasonProps = RTypeHolder<
   | 'id'
+  | 'name'
   | 'air_date'
   | 'episode_count'
   | 'overview'

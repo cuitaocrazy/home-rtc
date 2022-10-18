@@ -62,12 +62,10 @@ export default function Person() {
         {data.movieCredits.cast.map((movie) => {
           return (
             <LinkCard
-              id={movie.id}
               key={movie.id}
               alt={movie.title || ''}
               img={getImageUrl(movie.poster_path, 200)}
-              adult={movie.adult || false}
-              type="movie"
+              to={`/movie/${movie.id}`}
             >
               <div className="m-2">
                 <h5 className="text-sm text-gray-900">{movie.title}</h5>
@@ -90,9 +88,7 @@ export default function Person() {
               key={movie.id}
               alt={movie.title || ''}
               img={getImageUrl(movie.poster_path, 200)}
-              adult={movie.adult || false}
-              type="movie"
-              id={movie.id}
+              to={`/movie/${movie.id}`}
             >
               <div className="m-2">
                 <h5 className="text-sm text-gray-900">{movie.title}</h5>
@@ -116,9 +112,7 @@ export default function Person() {
               key={tv.id}
               alt={tv.name || ''}
               img={getImageUrl(tv.poster_path, 200)}
-              adult={tv.adult || false}
-              type="tv"
-              id={tv.id}
+              to={`/tv/${tv.id}`}
             >
               <div className="m-2">
                 <h5 className="text-sm text-gray-900">{tv.name}</h5>
@@ -141,9 +135,7 @@ export default function Person() {
               key={tv.id}
               alt={tv.name || ''}
               img={getImageUrl(tv.poster_path, 200)}
-              adult={tv.adult || false}
-              type="tv"
-              id={tv.id}
+              to={`/tv/${tv.id}`}
             >
               <div className="m-2">
                 <h5 className="text-sm text-gray-900">{tv.name}</h5>

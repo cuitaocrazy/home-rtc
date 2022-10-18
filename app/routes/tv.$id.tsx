@@ -93,8 +93,6 @@ export default function TV() {
           return (
             <Card
               key={season.id}
-              adult={false}
-              type="tv"
               alt={season.name}
               img={getImageUrl(season.poster_path, 200)}
             >
@@ -118,12 +116,10 @@ export default function TV() {
         {data.credits.cast.map((cast) => {
           return (
             <LinkCard
-              id={cast.id}
               key={cast.id}
               alt={cast.name || ''}
               img={getImageUrl(cast.profile_path, 92)}
-              adult={cast.adult || false}
-              type="person"
+              to={`/person/${cast.id}`}
               cardWidth="w-24"
               imgHeight="h-32"
             >
@@ -140,12 +136,10 @@ export default function TV() {
         {data.credits.crew.map((crew) => {
           return (
             <LinkCard
-              id={crew.id}
               key={crew.id}
               alt={crew.name || ''}
               img={getImageUrl(crew.profile_path, 92)}
-              adult={crew.adult || false}
-              type="person"
+              to={`/person/${crew.id}`}
               cardWidth="w-24"
               imgHeight="h-32"
             >
