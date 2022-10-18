@@ -3,8 +3,7 @@ import type { LoaderArgs } from '@remix-run/server-runtime'
 import { json } from '@remix-run/server-runtime'
 
 import Grid from '~/components/Grid'
-import { StarIcon } from '~/components/icons'
-import LinkCard from '~/components/LinkCard'
+import SearchCard from '~/components/SearchCard'
 import {
   getMovieCreditsByPersonId,
   getPersonDetails,
@@ -61,22 +60,7 @@ export default function Person() {
       <Grid>
         {data.movieCredits.cast.map((movie) => {
           return (
-            <LinkCard
-              key={movie.id}
-              alt={movie.title || ''}
-              img={getImageUrl(movie.poster_path, 200)}
-              to={`/movie/${movie.id}`}
-            >
-              <div className="m-2">
-                <h5 className="text-sm text-gray-900">{movie.title}</h5>
-                <p className="text-xs text-gray-600">{movie.release_date}</p>
-                <p className="flex items-center gap-1 text-xs text-gray-600">
-                  <StarIcon className="h-4 w-4" />
-                  {movie.vote_average}
-                </p>
-                <p className="text-xs text-gray-600">{movie.character}</p>
-              </div>
-            </LinkCard>
+            <SearchCard key={movie.id} item={movie} searchScope={'movie'} />
           )
         })}
       </Grid>
@@ -84,22 +68,7 @@ export default function Person() {
       <Grid>
         {data.movieCredits.crew.map((movie) => {
           return (
-            <LinkCard
-              key={movie.id}
-              alt={movie.title || ''}
-              img={getImageUrl(movie.poster_path, 200)}
-              to={`/movie/${movie.id}`}
-            >
-              <div className="m-2">
-                <h5 className="text-sm text-gray-900">{movie.title}</h5>
-                <p className="text-xs text-gray-600">{movie.release_date}</p>
-                <p className="flex items-center gap-1 text-xs text-gray-600">
-                  <StarIcon className="h-4 w-4" />
-                  {movie.vote_average}
-                </p>
-                <p className="text-xs text-gray-600">{movie.job}</p>
-              </div>
-            </LinkCard>
+            <SearchCard key={movie.id} item={movie} searchScope={'movie'} />
           )
         })}
       </Grid>
@@ -107,47 +76,13 @@ export default function Person() {
       <p>出演作品</p>
       <Grid>
         {data.tvCredits.cast.map((tv) => {
-          return (
-            <LinkCard
-              key={tv.id}
-              alt={tv.name || ''}
-              img={getImageUrl(tv.poster_path, 200)}
-              to={`/tv/${tv.id}`}
-            >
-              <div className="m-2">
-                <h5 className="text-sm text-gray-900">{tv.name}</h5>
-                <p className="text-xs text-gray-600">{tv.first_air_date}</p>
-                <p className="flex items-center gap-1 text-xs text-gray-600">
-                  <StarIcon className="h-4 w-4" />
-                  {tv.vote_average}
-                </p>
-                <p className="text-xs text-gray-600">{tv.character}</p>
-              </div>
-            </LinkCard>
-          )
+          return <SearchCard key={tv.id} item={tv} searchScope={'tv'} />
         })}
       </Grid>
       <p>参与剧组</p>
       <Grid>
         {data.tvCredits.crew.map((tv) => {
-          return (
-            <LinkCard
-              key={tv.id}
-              alt={tv.name || ''}
-              img={getImageUrl(tv.poster_path, 200)}
-              to={`/tv/${tv.id}`}
-            >
-              <div className="m-2">
-                <h5 className="text-sm text-gray-900">{tv.name}</h5>
-                <p className="text-xs text-gray-600">{tv.first_air_date}</p>
-                <p className="flex items-center gap-1 text-xs text-gray-600">
-                  <StarIcon className="h-4 w-4" />
-                  {tv.vote_average}
-                </p>
-                <p className="text-xs text-gray-600">{tv.job}</p>
-              </div>
-            </LinkCard>
-          )
+          return <SearchCard key={tv.id} item={tv} searchScope={'tv'} />
         })}
       </Grid>
       {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}

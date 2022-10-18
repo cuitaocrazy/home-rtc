@@ -80,7 +80,7 @@ function useInfinityQuery<S, R>({
   }, [location.pathname, transition.location])
 
   useEffect(() => {
-    if (state === 'init') {
+    if (state === 'init' && results === undefined) {
       const url = getNextFetchUrl(results, transition.location ?? location)
       if (!flag.current) {
         flag.current = true

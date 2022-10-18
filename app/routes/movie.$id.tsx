@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 import { useFetcher, useLoaderData } from '@remix-run/react'
 
 import Grid from '~/components/Grid'
-import LinkCard from '~/components/LinkCard'
+import SmallCard from '~/components/SmallCard'
 import { getMovieCredits, getMovieDetails } from '~/services/tmdb.server'
 import { aggObj, getImageUrl } from '~/utils'
 
@@ -102,19 +102,14 @@ export default function Movie() {
       <Grid min={96}>
         {data.credits.cast.map((cast) => {
           return (
-            <LinkCard
+            <SmallCard
               key={cast.id}
               alt={cast.name || ''}
-              img={getImageUrl(cast.profile_path, 92)}
+              title={cast.name}
+              description={cast.character || ''}
+              image={getImageUrl(cast.profile_path, 92)}
               to={`/person/${cast.id}`}
-              cardWidth="w-24"
-              imgHeight="h-32"
-            >
-              <div className="m-1">
-                <h5 className="text-xs text-gray-900">{cast.name}</h5>
-                <p className="text-xs text-gray-600">{cast.character}</p>
-              </div>
-            </LinkCard>
+            />
           )
         })}
       </Grid>
@@ -122,19 +117,14 @@ export default function Movie() {
       <Grid min={96}>
         {data.credits.crew.map((crew) => {
           return (
-            <LinkCard
+            <SmallCard
               key={crew.id}
               alt={crew.name || ''}
-              img={getImageUrl(crew.profile_path, 92)}
+              title={crew.name}
+              description={crew.job || ''}
+              image={getImageUrl(crew.profile_path, 92)}
               to={`/person/${crew.id}`}
-              cardWidth="w-24"
-              imgHeight="h-32"
-            >
-              <div className="m-1">
-                <h5 className="text-xs text-gray-900">{crew.name}</h5>
-                <p className="text-xs text-gray-600">{crew.job}</p>
-              </div>
-            </LinkCard>
+            />
           )
         })}
       </Grid>

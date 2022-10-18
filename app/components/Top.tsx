@@ -24,41 +24,43 @@ export default function Top() {
   }
 
   return (
-    <div>
-      <div className="w-full">
+    <div className="sticky top-0 z-40">
+      <div className="bg-cyan-600">
+        <Form action="/search">
+          <select name="language" defaultValue={language}>
+            <option value="zh-CN">zh-CN</option>
+            <option value="en-US">en-US</option>
+            <option value="ja-JP">ja-JP</option>
+          </select>
+          <select name="scope" defaultValue={scope}>
+            <option value="multi">Multi</option>
+            <option value="movie">Movie</option>
+            <option value="tv">TV</option>
+            <option value="person">Person</option>
+          </select>
+          <input
+            type="checkbox"
+            name="include_adult"
+            defaultChecked={includeAdult}
+            value="true"
+          />
+          <input
+            type="text"
+            name="query"
+            placeholder="input search word"
+            defaultValue={searchKeyWord}
+          />
+          <button type="submit">Search</button>
+        </Form>
+      </div>
+      <div className="w-screen fixed top-0">
         <div
-          className={clsx('h-[2px] w-0 bg-indigo-400', {
+          className={clsx('h-[2px] w-0 bg-red-700', {
             'load-req-at': !isIdle,
             'load-res-at': isIdle,
           })}
         ></div>
       </div>
-      <Form action="/search">
-        <select name="language" defaultValue={language}>
-          <option value="zh-CN">zh-CN</option>
-          <option value="en-US">en-US</option>
-          <option value="ja-JP">ja-JP</option>
-        </select>
-        <select name="scope" defaultValue={scope}>
-          <option value="multi">Multi</option>
-          <option value="movie">Movie</option>
-          <option value="tv">TV</option>
-          <option value="person">Person</option>
-        </select>
-        <input
-          type="checkbox"
-          name="include_adult"
-          defaultChecked={includeAdult}
-          value="true"
-        />
-        <input
-          type="text"
-          name="query"
-          placeholder="input search word"
-          defaultValue={searchKeyWord}
-        />
-        <button type="submit">Search</button>
-      </Form>
     </div>
   )
 }

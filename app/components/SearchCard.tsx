@@ -60,7 +60,7 @@ export default React.forwardRef<HTMLElement, SearchCard>(
         alt={title}
         to={`/${itemType}/${item.id}`}
         img={getImageUrl(imagePath, 185)}
-        prefetch
+        // prefetch
       >
         <div className="m-2">
           <h5 className="text-sm text-gray-900">{title}</h5>
