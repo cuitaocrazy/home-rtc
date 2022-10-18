@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState,
   useSyncExternalStore,
 } from 'react'
@@ -38,6 +39,11 @@ function useInfinityQuery<S, R>({
   const [results, setResults] = useState(historyResult)
   const { load, data, type } = useFetcher<R>()
   const [state, setState] = useState<State>('init')
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const flag =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    process.env.NODE_ENV === 'development' ? useRef(false) : { current: true }
 
   const updateData = useCallback(
     (data: R | undefined) => {
@@ -76,12 +82,24 @@ function useInfinityQuery<S, R>({
   useEffect(() => {
     if (state === 'init') {
       const url = getNextFetchUrl(results, transition.location ?? location)
+      if (!flag.current) {
+        flag.current = true
+        return
+      }
       if (url) {
         setState('loading')
         load(url)
       }
     }
-  }, [state, results, load, location, transition.location, getNextFetchUrl])
+  }, [
+    state,
+    results,
+    load,
+    location,
+    transition.location,
+    getNextFetchUrl,
+    flag,
+  ])
 
   useEffect(() => {
     if (state === 'loaded') {

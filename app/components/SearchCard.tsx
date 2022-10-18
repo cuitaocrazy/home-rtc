@@ -14,15 +14,10 @@ import { getImageUrl } from '~/utils'
 import { MovieIcon, PersonIcon, StarIcon, TVIcon } from './icons'
 import LinkCard from './LinkCard'
 
-type SearchCard =
-  | {
-      item: Multi
-      searchScope: Extract<SearchScope, 'multi'>
-    }
-  | {
-      item: Movie | TV | Person
-      searchScope: Exclude<SearchScope, 'multi'>
-    }
+type SearchCard = {
+  item: Multi | Movie | TV | Person
+  searchScope: SearchScope
+}
 
 export default React.forwardRef<HTMLElement, SearchCard>(
   function SimpleMovieInfoCard({ item, searchScope }, ref) {
@@ -30,7 +25,8 @@ export default React.forwardRef<HTMLElement, SearchCard>(
       getMediaProp(item, 'title') || getMediaProp(item, 'name')
     const imagePath: string | undefined =
       getMediaProp(item, 'poster_path') || getMediaProp(item, 'profile_path')
-    const itemType = searchScope === 'multi' ? item.media_type : searchScope
+    const itemType =
+      searchScope === 'multi' ? (item as Multi).media_type : searchScope
     const voteAverage: number = getMediaProp(item, 'vote_average') || 0
     const releaseDate: string | undefined =
       getMediaProp(item, 'release_date') || getMediaProp(item, 'first_air_date')
@@ -54,7 +50,7 @@ export default React.forwardRef<HTMLElement, SearchCard>(
         case 'person':
           return <PersonIcon className={cls} />
         default:
-          return <MovieIcon className={cls} />
+          return null
       }
     }, [adult, itemType])
 
@@ -65,7 +61,6 @@ export default React.forwardRef<HTMLElement, SearchCard>(
         to={`/${itemType}/${item.id}`}
         img={getImageUrl(imagePath, 185)}
         prefetch
-        // newTag={true}
       >
         <div className="m-2">
           <h5 className="text-sm text-gray-900">{title}</h5>

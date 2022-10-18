@@ -148,7 +148,23 @@ export type Person = TmdbTypeCreator<
 export type Multi =
   | TmdbTypeCreator<RMovieProps, OMovieProps, [{ media_type: 'movie' }]>
   | TmdbTypeCreator<RTVProps, OTVProps, [{ media_type: 'tv' }]>
-  | TmdbTypeCreator<RPersonProps, OPersonProps, [{ media_type: 'person' }]>
+  | TmdbTypeCreator<
+      RPersonProps,
+      OPersonProps,
+      [
+        {
+          media_type: 'person'
+          known_for: (
+            | TmdbTypeCreator<
+                RMovieProps,
+                OMovieProps,
+                [{ media_type: 'movie' }]
+              >
+            | TmdbTypeCreator<RTVProps, OTVProps, [{ media_type: 'tv' }]>
+          )[]
+        },
+      ]
+    >
 
 export type SearchResults<T> = {
   page: number
