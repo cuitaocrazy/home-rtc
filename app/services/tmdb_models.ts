@@ -1,3 +1,4 @@
+// #region base
 type MergeIntersection<T> = {
   [K in keyof T]: T[K]
 }
@@ -72,6 +73,8 @@ type BaseField = {
   character: string
 
   order: number
+
+  show_id: number
 }
 
 type TmdbTypeCreator<
@@ -91,7 +94,9 @@ type OTypeHolder<
   RK extends keyof BaseField,
   OK extends Exclude<keyof BaseField, RK> = never,
 > = OK
+// #endregion
 
+// #region Movie
 type RMovieProps = RTypeHolder<
   'id' | 'poster_path' | 'adult' | 'title' | 'backdrop_path'
 >
@@ -109,7 +114,9 @@ type OMovieProps = OTypeHolder<
 >
 
 export type Movie = TmdbTypeCreator<RMovieProps, OMovieProps>
+// #endregion
 
+// #region TV
 type RTVProps = RTypeHolder<'id' | 'poster_path' | 'backdrop_path' | 'name'>
 type OTVProps = OTypeHolder<
   RTVProps,
@@ -125,13 +132,15 @@ type OTVProps = OTypeHolder<
 >
 
 export type TV = TmdbTypeCreator<RTVProps, OTVProps>
+// #endregion
+
+// #region Person
 
 type RPersonProps = RTypeHolder<'id' | 'profile_path' | 'name' | 'adult'>
 type OPersonProps = OTypeHolder<
   RPersonProps,
   'popularity' | 'known_for_department'
 >
-
 export type Person = TmdbTypeCreator<
   RPersonProps,
   OPersonProps,
@@ -144,7 +153,9 @@ export type Person = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
+// #region Multi
 export type Multi =
   | TmdbTypeCreator<RMovieProps, OMovieProps, [{ media_type: 'movie' }]>
   | TmdbTypeCreator<RTVProps, OTVProps, [{ media_type: 'tv' }]>
@@ -165,7 +176,7 @@ export type Multi =
         },
       ]
     >
-
+// #endregion
 export type SearchResults<T> = {
   page: number
   total_results: number
@@ -182,6 +193,7 @@ export function getMediaProp<T>(
   return (item as any)[propName]
 }
 
+// #region MovieDetails
 type RCompanyProps = RTypeHolder<'id' | 'logo_path' | 'name'>
 
 type Company = TmdbTypeCreator<
@@ -231,7 +243,9 @@ export type MovieDetails = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
+// #region TVDetails
 type RCreatorProps = RTypeHolder<
   'id' | 'name' | 'credit_id' | 'gender' | 'profile_path'
 >
@@ -310,6 +324,69 @@ export type TVDetails = TmdbTypeCreator<
   ]
 >
 
+// #endregion
+
+// #region TVEpisodeDetails
+type RTVSeasonDetailsProps = RTypeHolder<'id' | 'season_number' | 'name'>
+type OTVSeasonDetailsProps = OTypeHolder<
+  RTVSeasonDetailsProps,
+  'poster_path' | 'air_date' | 'overview'
+>
+
+type RTVEpisodeProps = RTypeHolder<
+  'id' | 'name' | 'season_number' | 'episode_number' | 'show_id'
+>
+type OTVEpisodeProps = OTypeHolder<
+  RTVEpisodeProps,
+  | 'air_date'
+  | 'overview'
+  | 'still_path'
+  | 'vote_average'
+  | 'vote_count'
+  | 'production_code'
+>
+
+type RTVEpisodeCastProps = RTypeHolder<RPersonProps | 'credit_id'>
+type OTVEpisodeCastProps = OTypeHolder<
+  RTVEpisodeCastProps,
+  OPersonProps | 'character' | 'order' | 'gender' | 'original_name'
+>
+
+type TVEpisodeCast = TmdbTypeCreator<RTVEpisodeCastProps, OTVEpisodeCastProps>
+
+type RTVEpisodeCrewProps = RTypeHolder<RPersonProps | 'credit_id'>
+type OTVEpisodeCrewProps = OTypeHolder<
+  RTVEpisodeCrewProps,
+  OPersonProps | 'department' | 'job' | 'original_name' | 'gender'
+>
+
+type TVEpisodeCrew = TmdbTypeCreator<RTVEpisodeCrewProps, OTVEpisodeCrewProps>
+
+export type TVEpisodeDetails = TmdbTypeCreator<
+  RTVEpisodeProps,
+  OTVEpisodeProps,
+  [
+    {
+      crew: TVEpisodeCrew[]
+      guest_stars: TVEpisodeCast[]
+    },
+  ]
+>
+// #endregion
+
+// #region TVSeasonDetails
+export type TVSeasonDetails = TmdbTypeCreator<
+  RTVSeasonDetailsProps,
+  OTVSeasonDetailsProps,
+  [
+    {
+      episodes: TVEpisodeDetails[]
+    },
+  ]
+>
+// #endregion
+
+// #region PersonDetails
 type RPersonDetailsProps = RTypeHolder<RPersonProps>
 type OPersonDetailsProps = OTypeHolder<
   RPersonDetailsProps,
@@ -329,13 +406,16 @@ export type PersonDetails = TmdbTypeCreator<
   OPersonDetailsProps
 >
 
+// #endregion
+
+// #region PersonMovieCredits
 type RPersonMovieCastProps = RTypeHolder<RMovieProps | 'credit_id'>
 type OPersonMovieCastProps = OTypeHolder<
   RPersonMovieCastProps,
   OMovieProps | 'character'
 >
 
-export type PersonMovieCast = TmdbTypeCreator<
+type PersonMovieCast = TmdbTypeCreator<
   RPersonMovieCastProps,
   OPersonMovieCastProps
 >
@@ -346,7 +426,7 @@ type OPersonMovieCrewProps = OTypeHolder<
   OMovieProps | 'department' | 'job'
 >
 
-export type PersonMovieCrew = TmdbTypeCreator<
+type PersonMovieCrew = TmdbTypeCreator<
   RPersonMovieCrewProps,
   OPersonMovieCrewProps
 >
@@ -361,17 +441,16 @@ export type PersonMovieCredits = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
+// #region PersonTVCredits
 type RPersonTVCastProps = RTypeHolder<RTVProps | 'credit_id'>
 type OPersonTVCastProps = OTypeHolder<
   RPersonTVCastProps,
   OTVProps | 'character' | 'episode_count' | 'adult'
 >
 
-export type PersonTVCast = TmdbTypeCreator<
-  RPersonTVCastProps,
-  OPersonTVCastProps
->
+type PersonTVCast = TmdbTypeCreator<RPersonTVCastProps, OPersonTVCastProps>
 
 type RPersonTVCrewProps = RTypeHolder<RTVProps | 'credit_id'>
 type OPersonTVCrewProps = OTypeHolder<
@@ -383,10 +462,7 @@ type OPersonTVCrewProps = OTypeHolder<
   | 'adult'
 >
 
-export type PersonTVCrew = TmdbTypeCreator<
-  RPersonTVCrewProps,
-  OPersonTVCrewProps
->
+type PersonTVCrew = TmdbTypeCreator<RPersonTVCrewProps, OPersonTVCrewProps>
 
 export type PersonTVCredits = TmdbTypeCreator<
   'id',
@@ -398,7 +474,9 @@ export type PersonTVCredits = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
+// #region MovieCredits
 type RMovieCastProps = RTypeHolder<RPersonProps | 'credit_id'>
 type OMovieCastProps = OTypeHolder<
   RMovieCastProps,
@@ -425,7 +503,9 @@ export type MovieCredits = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
+// #region TVCredits
 type RTVCastProps = RTypeHolder<RMovieCastProps>
 type OTVCastProps = OTypeHolder<RTVCastProps, OMovieCastProps>
 
@@ -446,6 +526,7 @@ export type TVCredits = TmdbTypeCreator<
     },
   ]
 >
+// #endregion
 
 export type ExtennalIds = {
   imdb_id?: string

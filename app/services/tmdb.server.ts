@@ -12,6 +12,8 @@ import type {
   TV,
   TVCredits,
   TVDetails,
+  TVEpisodeDetails,
+  TVSeasonDetails,
 } from './tmdb_models'
 
 export async function searchMulti(searchParams: URLSearchParams) {
@@ -50,7 +52,6 @@ async function search<T>(apiParams: {
   url: string
   method: string
 }): Promise<SearchResults<T>> {
-  console.log(apiParams.url)
   const response = await fetch(apiParams.url, { method: apiParams.method })
   const data = await response.json()
 
@@ -177,4 +178,46 @@ export async function discoverTv(searchParams: URLSearchParams) {
   const aipParams = getApiParams('discover', 'Tv', searchParams)
 
   return search<TV>(aipParams)
+}
+
+export async function getTVSeasonDetails(
+  tvId: number,
+  seasonNumber: number,
+): Promise<TVSeasonDetails> {
+  const apiParams = getApiParams(
+    'tv',
+    'SeasonInfo',
+    new URLSearchParams({
+      id: tvId.toString(),
+      season_number: seasonNumber.toString(),
+      language: 'zh-CN',
+    }),
+  )
+
+  const response = await fetch(apiParams.url, { method: apiParams.method })
+  const data = await response.json()
+
+  return data
+}
+
+export async function getTVEpisodeDetails(
+  tvId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+): Promise<TVEpisodeDetails> {
+  const apiParams = getApiParams(
+    'tv',
+    'EpisodeInfo',
+    new URLSearchParams({
+      id: tvId.toString(),
+      season_number: seasonNumber.toString(),
+      episode_number: episodeNumber.toString(),
+      language: 'zh-CN',
+    }),
+  )
+
+  const response = await fetch(apiParams.url, { method: apiParams.method })
+  const data = await response.json()
+
+  return data
 }

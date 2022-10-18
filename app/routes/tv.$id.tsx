@@ -2,8 +2,8 @@ import { useFetcher, useLoaderData } from '@remix-run/react'
 import type { LoaderArgs } from '@remix-run/server-runtime'
 import { json } from '@remix-run/server-runtime'
 
-import Card from '~/components/Card'
 import Grid from '~/components/Grid'
+import LinkCard from '~/components/LinkCard'
 import SmallCard from '~/components/SmallCard'
 import {
   getTvCredits,
@@ -91,10 +91,11 @@ export default function TV() {
       <Grid>
         {data.tv.seasons?.map((season) => {
           return (
-            <Card
+            <LinkCard
               key={season.id}
               alt={season.name}
               img={getImageUrl(season.poster_path, 200)}
+              to={`/tv/${data.tv.id}/${season.season_number}`}
             >
               <div className="m-2">
                 <h5 className="text-sm text-gray-900">{season.name}</h5>
@@ -107,7 +108,7 @@ export default function TV() {
                       '/') + season.episode_count}
                 </p>
               </div>
-            </Card>
+            </LinkCard>
           )
         })}
       </Grid>

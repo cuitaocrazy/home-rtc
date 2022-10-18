@@ -179,14 +179,17 @@ export function getApiParams<
   const id = params.get('id') || ''
   const seasonNumber = params.get('season_number') || ''
   const personId = params.get('person_id') || ''
+  const episodeNumber = params.get('episode_number') || ''
   params.delete('id')
   params.delete('season_number')
   params.delete('person_id')
+  params.delete('episode_number')
 
   const resource = info.resource
     .replace(':id', id)
     .replace(':personId', personId)
     .replace(':seasonNumber', seasonNumber)
+    .replace(':episodeNumber', episodeNumber)
   params.set('api_key', tmdb_api_key)
 
   const urlParams = params.toString()
