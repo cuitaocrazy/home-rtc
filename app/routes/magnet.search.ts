@@ -188,7 +188,15 @@ export async function loader({ request }: LoaderArgs) {
   if (query) {
     const results: TPBQueryItem[] = await fetch(
       `https://apibay.org/q.php?q=${query}&cat=0`,
-    ).then((res) => res.json())
+    ).then((res) => {
+      if (res.status >= 300 || res.status < 200) {
+        throw json(
+          { error: 'Error fetching data from TPB' },
+          { status: res.status },
+        )
+      }
+      return res.json()
+    })
 
     return json(
       results.map((res) => ({
