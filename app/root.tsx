@@ -7,9 +7,15 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@remix-run/react'
+import clsx from 'clsx'
 
 import Top from './components/Top'
 import tailwindStylesheetUrl from './styles/tailwind.css'
+import {
+  NonFlashOfWrongThemeEls,
+  ThemeProvider,
+  useTheme,
+} from './theme-provider'
 
 export function links() {
   return [{ rel: 'stylesheet', href: tailwindStylesheetUrl }]
@@ -21,11 +27,14 @@ export const meta: MetaFunction = () => ({
   viewport: 'width=device-width,initial-scale=1',
 })
 
-export default function App() {
+function App() {
+  const [theme] = useTheme()
   return (
-    <html lang="en">
+    <html lang="en" className={clsx(theme)}>
       <head>
         <Meta />
+        <meta name="color-scheme" content="dark light" />
+        <NonFlashOfWrongThemeEls />
         <Links />
       </head>
       <body>
@@ -36,5 +45,13 @@ export default function App() {
         <LiveReload />
       </body>
     </html>
+  )
+}
+
+export default function AppWithProviders() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   )
 }

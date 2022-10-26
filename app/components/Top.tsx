@@ -5,6 +5,9 @@ import {
   useTransition,
 } from '@remix-run/react'
 import clsx from 'clsx'
+
+import type { Theme } from '~/theme-provider'
+import { Themed, useTheme } from '~/theme-provider'
 export default function Top() {
   const [searchParams] = useSearchParams()
   const searchKeyWord = searchParams.get('query') || ''
@@ -13,6 +16,7 @@ export default function Top() {
   const includeAdult = searchParams.get('include_adult') === 'true'
   const { state } = useTransition()
   const fetchers = useFetchers()
+  const [theme, setTheme] = useTheme()
   let isIdle = state === 'idle'
   if (isIdle) {
     for (const f of fetchers) {
@@ -52,6 +56,7 @@ export default function Top() {
           />
           <button type="submit">Search</button>
         </Form>
+        <Themed dark="dark" light="light" />
       </div>
       <div className="w-screen fixed top-0">
         <div

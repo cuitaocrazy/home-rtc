@@ -34,6 +34,7 @@ function LinkCard(
       target={newTag ? '_blank' : undefined}
       rel={newTag ? 'noopener noreferrer' : undefined}
       prefetch={prefetch ? 'intent' : 'none'}
+      className="overflow-visible"
     >
       <Card img={img} alt={alt} imgHeight={imgHeight} cardWidth={cardWidth}>
         {children}

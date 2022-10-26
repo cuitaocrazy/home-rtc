@@ -2,10 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  /* .focus-ring {
-    @apply ring-team-current focus-within:ring-team-current hover:ring-team-current focus:ring-team-current group-hover:ring-team-current group-focus:ring-team-current ring-offset-4 ring-offset-white transition duration-300 focus-within:outline-none focus-within:ring-2 hover:ring-2 focus:outline-none focus:ring-2 disabled:ring-0 group-hover:ring-2 group-focus:ring-2 dark:ring-offset-gray-900;
-  } */
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+dark-mode,
+light-mode {
+  display: none;
 }
 
 .load-req-at {
@@ -37,4 +44,33 @@
   to {
     width: 100%;
   }
+}
+
+.ripple {
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.ripple:after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
+
+.ripple:active:after {
+  transform: scale(0, 0);
+  opacity: 0.2;
+  transition: 0s;
 }
