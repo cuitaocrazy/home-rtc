@@ -56,7 +56,9 @@ export default function Top() {
           />
           <button type="submit">Search</button>
         </Form>
-        <Themed dark="dark" light="light" />
+        <button>
+          <Themed dark="dark" light="light" />
+        </button>
       </div>
       <div className="w-screen fixed top-0">
         <div

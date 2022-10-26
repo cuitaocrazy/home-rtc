@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useEffect } from 'react'
 
 export type Theme = 'dark' | 'light'
@@ -42,11 +42,29 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
       : getLocalStorageTheme() || getPreferredTheme(),
   )
 
+  const themeRef = useRef(theme)
+
   useEffect(() => {
-    theme
-      ? localStorage.setItem('theme', theme)
-      : localStorage.removeItem('theme')
+    if (themeRef.current !== theme) {
+      // 经过setTheme变化的，不是第一次渲染
+      theme
+        ? localStorage.setItem('theme', theme)
+        : localStorage.removeItem('theme')
+      themeRef.current = theme
+    }
   }, [theme])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(prefersLightMQ)
+    const listener = (e: MediaQueryListEvent) => {
+      if (getLocalStorageTheme() === null) {
+        themeRef.current = e.matches ? 'light' : 'dark'
+        setTheme(themeRef.current)
+      }
+    }
+    mediaQuery.addEventListener('change', listener)
+    return () => mediaQuery.removeEventListener('change', listener)
+  }, [])
 
   return (
     <ThemeContext.Provider value={[theme, setTheme]}>
@@ -104,7 +122,7 @@ function Themed({
   initialOnly?: boolean
 }) {
   const [theme] = useTheme()
-  console.log(theme)
+
   if (theme === null) {
     // stick them both in and our little script will update the DOM to match
     // what we'll render in the client during hydration.

@@ -2,7 +2,10 @@ import { RemixBrowser } from '@remix-run/react'
 import { startTransition, StrictMode } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 
+import { handleDarkAndLightModeEls } from './theme-provider'
+
 function hydrate() {
+  handleDarkAndLightModeEls()
   startTransition(() => {
     hydrateRoot(
       document,
