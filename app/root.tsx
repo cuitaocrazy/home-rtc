@@ -28,9 +28,9 @@ export const meta: MetaFunction = () => ({
 })
 
 function App() {
-  const [theme] = useTheme()
+  const theme = useTheme()
   return (
-    <html lang="en" className={clsx(theme)}>
+    <html lang="en" className={clsx(theme || 'dark')}>
       <head>
         <Meta />
         <meta name="color-scheme" content="dark light" />

@@ -1,9 +1,10 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useEffect } from 'react'
 
 export type Theme = 'dark' | 'light'
 
 type ThemeContextType = [
+  Theme | null,
   Theme | null,
   React.Dispatch<React.SetStateAction<Theme | null>>,
 ]
@@ -23,6 +24,7 @@ const getLocalStorageTheme = () => {
 const themeScript = `
   (function() {
     function setTheme(theme) {
+      document.documentElement.classList.remove('dark', 'light')
       if (theme) {
         document.documentElement.classList.add(theme)
       } else {
@@ -36,38 +38,38 @@ const themeScript = `
   })()
 `
 function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [themeSetting, setThemeSetting] = React.useState<Theme | null>(
+    typeof window === 'undefined' ? null : getLocalStorageTheme(),
+  )
   const [theme, setTheme] = React.useState(
-    typeof window === 'undefined'
-      ? null
-      : getLocalStorageTheme() || getPreferredTheme(),
+    typeof window === 'undefined' ? null : themeSetting || getPreferredTheme(),
   )
 
-  const themeRef = useRef(theme)
-
   useEffect(() => {
-    if (themeRef.current !== theme) {
-      // 经过setTheme变化的，不是第一次渲染
-      theme
-        ? localStorage.setItem('theme', theme)
-        : localStorage.removeItem('theme')
-      themeRef.current = theme
+    if (themeSetting) {
+      setTheme(themeSetting)
+      localStorage.setItem('theme', themeSetting)
+    } else {
+      setTheme(getPreferredTheme())
+      localStorage.removeItem('theme')
     }
-  }, [theme])
+  }, [themeSetting])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(prefersLightMQ)
-    const listener = (e: MediaQueryListEvent) => {
-      if (getLocalStorageTheme() === null) {
-        themeRef.current = e.matches ? 'light' : 'dark'
-        setTheme(themeRef.current)
+    if (themeSetting === null) {
+      const mediaQuery = window.matchMedia(prefersLightMQ)
+      const listener = (e: MediaQueryListEvent) => {
+        if (themeSetting === null) {
+          setTheme(e.matches ? 'light' : 'dark')
+        }
       }
+      mediaQuery.addEventListener('change', listener)
+      return () => mediaQuery.removeEventListener('change', listener)
     }
-    mediaQuery.addEventListener('change', listener)
-    return () => mediaQuery.removeEventListener('change', listener)
-  }, [])
+  }, [themeSetting])
 
   return (
-    <ThemeContext.Provider value={[theme, setTheme]}>
+    <ThemeContext.Provider value={[theme, themeSetting, setThemeSetting]}>
       {children}
     </ThemeContext.Provider>
   )
@@ -88,13 +90,24 @@ function useTheme() {
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
-  return context
+  return context[0]
+}
+
+function useThemeSetting() {
+  const context = React.useContext(ThemeContext)
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider')
+  }
+  return [context[1], context[2]]
 }
 
 function handleDarkAndLightModeEls() {
-  const theme = getPreferredTheme()
+  const themeSetting = getLocalStorageTheme() as Theme | null
+  const theme = themeSetting || 'system'
   const darkEls = document.querySelectorAll('dark-mode')
   const lightEls = document.querySelectorAll('light-mode')
+  const systemEls = document.querySelectorAll('system-mode')
+
   for (const darkEl of darkEls) {
     if (theme === 'dark') {
       for (const child of darkEl.childNodes) {
@@ -111,17 +124,27 @@ function handleDarkAndLightModeEls() {
     }
     lightEl.remove()
   }
+  for (const systemEl of systemEls) {
+    if (theme === 'system') {
+      for (const child of systemEl.childNodes) {
+        systemEl.parentElement?.append(child)
+      }
+    }
+    systemEl.remove()
+  }
 }
 
 function Themed({
   dark,
   light,
+  system,
 }: {
   dark: React.ReactNode | string
   light: React.ReactNode | string
-  initialOnly?: boolean
+  system: React.ReactNode | string
 }) {
-  const [theme] = useTheme()
+  const theme = useTheme()
+  const [themeSetting] = useThemeSetting()
 
   if (theme === null) {
     // stick them both in and our little script will update the DOM to match
@@ -130,11 +153,20 @@ function Themed({
       <>
         {React.createElement('dark-mode', null, dark)}
         {React.createElement('light-mode', null, light)}
+        {React.createElement('system-mode', null, system)}
       </>
     )
   } else {
     // eslint-disable-next-line react/jsx-no-useless-fragment
-    return <>{theme === 'light' ? light : dark}</>
+    return (
+      <>
+        {themeSetting === null
+          ? system
+          : themeSetting === 'light'
+          ? light
+          : dark}
+      </>
+    )
   }
 }
 
@@ -144,4 +176,5 @@ export {
   Themed,
   ThemeProvider,
   useTheme,
+  useThemeSetting,
 }
