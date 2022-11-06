@@ -1,82 +1,82 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import useOnClickOutside from './useOnClickOutside'
 
 function useSelectEvent(
-  rootRef: React.RefObject<HTMLElement>,
-  forceRef: React.RefObject<HTMLElement>,
+  inputRef: React.RefObject<HTMLElement>,
   optionsRef: React.RefObject<HTMLElement>,
 ) {
   const [isOpen, setIsOpen] = useState(false)
-  useOnClickOutside(rootRef, (e) => {
-    setIsOpen(false)
 
-    e.preventDefault()
-  })
-
-  useEffect(() => {
-    const listener = (e: MouseEvent) => {
-      e.preventDefault()
-      // setIsOpen((prev) => !prev)
-    }
-
-    const element = forceRef.current
-
-    if (element) {
-      element.addEventListener('click', listener)
-
-      return () => {
-        element.removeEventListener('click', listener)
+  const onClickOutsideHandler = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (isOpen) {
+        if (
+          optionsRef.current &&
+          optionsRef.current.contains(e.target as Node)
+        ) {
+          return
+        }
+        setIsOpen(false)
+        e.preventDefault()
       }
-    }
-  }, [forceRef])
+    },
+    [isOpen, optionsRef],
+  )
+  useOnClickOutside(inputRef, onClickOutsideHandler)
+
+  // useEffect(() => {
+  //   const listener = (e: MouseEvent) => {
+  //     e.preventDefault()
+  //   }
+
+  //   const element = forceRef.current
+
+  //   if (element) {
+  //     element.addEventListener('click', listener)
+
+  //     return () => {
+  //       element.removeEventListener('click', listener)
+  //     }
+  //   }
+  // }, [forceRef])
+
+  // useEffect(() => {
+  //   const listener = (e: MouseEvent) => {}
+
+  //   const element = rootRef.current
+
+  //   if (element) {
+  //     element.addEventListener('click', listener)
+
+  //     return () => {
+  //       element.removeEventListener('click', listener)
+  //     }
+  //   }
+  // }, [rootRef])
 
   useEffect(() => {
     const listener = (e: MouseEvent) => {
-      // console.log('456')
-      // console.log(e.cancelable)
-      // setIsOpen(false)
-      // e.preventDefault()
-      // setIsOpen((prev) => !prev)
-      console.log('123')
-    }
-
-    const element = rootRef.current
-
-    if (element) {
-      element.addEventListener('click', listener)
-
-      return () => {
-        element.removeEventListener('click', listener)
-      }
-    }
-  }, [rootRef])
-
-  useEffect(() => {
-    console.log(optionsRef)
-    const listener = (e: MouseEvent) => {
-      console.log('aaa')
-      console.log(e.cancelable)
-      // setIsOpen((prev) => !prev)
+      console.log('outside click')
     }
 
     const element = optionsRef.current
-    console.log(element)
 
     if (element) {
-      console.log('asdfasdf')
       element.addEventListener('click', listener)
 
       return () => {
         element.removeEventListener('click', listener)
       }
     }
-  }, [optionsRef])
+  }, [optionsRef, isOpen])
 
   useEffect(() => {
-    if (forceRef.current) {
-      const element = forceRef.current
-      const clickListener = () => setIsOpen((prev) => !prev)
+    if (inputRef.current) {
+      const element = inputRef.current
+      const clickListener = () => {
+        setIsOpen((prev) => !prev)
+      }
       const keyListener = (event: KeyboardEvent) => {
         if (event.key === 'Enter' || event.key === ' ') {
           setIsOpen((prev) => !prev)
@@ -90,7 +90,7 @@ function useSelectEvent(
         element.removeEventListener('keydown', keyListener)
       }
     }
-  }, [forceRef])
+  }, [inputRef])
 
   return isOpen
 }
