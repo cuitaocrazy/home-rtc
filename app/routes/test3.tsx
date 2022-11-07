@@ -63,6 +63,7 @@ function Test3() {
     if (click1Ref.current) {
       const clickHandler = (e: MouseEvent) => {
         console.log('click1', e.eventPhase, performance.now())
+        console.log(e.target, e.currentTarget)
       }
       const ele = click1Ref.current
       ele.addEventListener('click', clickHandler)
@@ -94,15 +95,16 @@ function Test3() {
       <div
         ref={click1Ref}
         onClick={(e) =>
-          console.log('zj click1', e.eventPhase, performance.now())
+          console.log('react click1', e.eventPhase, performance.now())
         }
       >
         click1
         <div
           ref={click2Ref}
-          onClick={(e) =>
-            console.log('zj click2', e.eventPhase, performance.now())
-          }
+          onClick={(e) => {
+            console.log('react click2', e.eventPhase, performance.now())
+            console.log(e.target, e.currentTarget)
+          }}
         >
           click2
         </div>

@@ -103,7 +103,7 @@ function useInfinityQuery<S, R>({
 
   useEffect(() => {
     if (state === 'loaded') {
-      updateData(data)
+      updateData(data as R)
     }
   }, [data, state, updateData])
 
