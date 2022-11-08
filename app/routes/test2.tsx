@@ -1,10 +1,13 @@
 import { faker } from '@faker-js/faker'
 import clsx from 'clsx'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import useOnClickOutside from '~/hook/useOnClickOutside'
 
 function useSelect<T>() {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
+  const ref = useRef<any>(null)
 
   const toggle = useCallback(() => {
     setIsOpen((prev) => !prev)
@@ -14,23 +17,32 @@ function useSelect<T>() {
     setSelected(data)
   }, [])
 
+  const outsideClickHandler = useCallback((_: MouseEvent | TouchEvent) => {
+    if(isOpen) {
+      toggle()
+    }
+  }, [isOpen, toggle])
+
+  useOnClickOutside(ref, outsideClickHandler)
+
   return {
     isOpen,
     selected,
     toggle,
     itemClickHandler,
+    ref
   }
 }
 
 function Test2() {
   const [data, setData] = useState<{ id: number; name: string }[]>([])
-  const { isOpen, toggle, selected, itemClickHandler } =
+  const { isOpen, toggle, selected, itemClickHandler, ref } =
     useSelect<typeof data[number]>()
 
   useEffect(() => {
     if (data.length === 0) {
       setData(
-        Array.from({ length: 20 }, (_, idx) => ({
+        Array.from({ length: 2000 }, (_, idx) => ({
           id: idx,
           name: faker.name.fullName(),
         })),
@@ -39,7 +51,7 @@ function Test2() {
   }, [data])
 
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <input
         type="text"
         placeholder="select"
@@ -54,6 +66,7 @@ function Test2() {
           }
 
           if (e.key === 'ArrowDown') {
+            e.preventDefault()
             if (!selected) {
               itemClickHandler(data[0])
             } else {
@@ -67,6 +80,7 @@ function Test2() {
           }
 
           if (e.key === 'ArrowUp') {
+            e.preventDefault()
             if (!selected) {
               itemClickHandler(data[data.length - 1])
             } else {
@@ -83,10 +97,10 @@ function Test2() {
         readOnly
         className="w-full"
       />
-      {isOpen && (
+      { isOpen && (
         <ul
           className="bg-gray-300 w-full absolute"
-          onClick={() => console.log('click')}
+          onMouseDown={(e) => e.preventDefault()}
         >
           {data.map((item) => (
             <li
