@@ -5,8 +5,116 @@ import {
   useTransition,
 } from '@remix-run/react'
 import clsx from 'clsx'
+import { motion } from 'framer-motion'
+import { useRef, useState } from 'react'
+import { BsCircleHalf, BsMoonFill, BsSunFill } from 'react-icons/bs'
 
-import { Themed } from '~/theme-provider'
+import useOnClickOutside from '~/hook/useOnClickOutside'
+import { Themed, useThemeSetting } from '~/theme-provider'
+
+function ThemeDisplay({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center gap-1">{children}</div>
+}
+function ThemeSelect() {
+  const { 0: theme, 1: setTheme } = useThemeSetting()
+  const [isOpen, setIsOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useOnClickOutside(rootRef, () => setIsOpen(false))
+
+  return (
+    <div ref={rootRef} className="relative inline-block float-right">
+      <button onClick={() => setIsOpen((prev) => !prev)} className="mr-8 ml-3">
+        <Themed
+          dark={
+            <ThemeDisplay>
+              <BsMoonFill />
+              Theme
+            </ThemeDisplay>
+          }
+          light={
+            <ThemeDisplay>
+              <BsSunFill />
+              Theme
+            </ThemeDisplay>
+          }
+          system={
+            <ThemeDisplay>
+              <BsCircleHalf />
+              Theme
+            </ThemeDisplay>
+          }
+        />
+      </button>
+      <motion.ul
+        initial={false}
+        onClick={() => setIsOpen(false)}
+        className="absolute bg-white border dark:bg-black cursor-pointer shadow rounded p-2"
+        animate={isOpen ? 'open' : 'closed'}
+        variants={{
+          open: {
+            clipPath: 'inset(-100% -100% -100% -100%)',
+            opacity: 1,
+          },
+          closed: {
+            clipPath: 'inset(0% 0% 100% 0%)',
+            opacity: 0,
+            transition: {
+              duration: 0,
+            },
+          },
+        }}
+      >
+        <motion.li
+          onClick={() => setTheme(null)}
+          className={clsx(
+            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
+            {
+              'border-transparent': theme !== null,
+              'bg-gray-100 dark:bg-gray-800': theme === null,
+            },
+          )}
+        >
+          <ThemeDisplay>
+            <BsCircleHalf />
+            System
+          </ThemeDisplay>
+        </motion.li>
+        <motion.li
+          onClick={() => setTheme('light')}
+          className={clsx(
+            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
+            {
+              'border-transparent': theme !== 'light',
+              'bg-gray-100 dark:bg-gray-800': theme === 'light',
+            },
+          )}
+        >
+          <ThemeDisplay>
+            <BsSunFill />
+            Light
+          </ThemeDisplay>
+        </motion.li>
+        <motion.li
+          onClick={() => setTheme('dark')}
+          className={clsx(
+            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
+            {
+              'border-transparent': theme !== 'dark',
+              'bg-gray-100 dark:bg-gray-800': theme === 'dark',
+            },
+          )}
+        >
+          <ThemeDisplay>
+            <BsMoonFill />
+            Dark
+          </ThemeDisplay>
+        </motion.li>
+      </motion.ul>
+    </div>
+  )
+}
+
 export default function Top() {
   const [searchParams] = useSearchParams()
   const searchKeyWord = searchParams.get('query') || ''
@@ -29,7 +137,7 @@ export default function Top() {
   return (
     <div className="sticky top-0 z-40">
       <div className="bg-cyan-600">
-        <Form action="/search">
+        <Form action="/search" className="inline-block">
           <select name="language" defaultValue={language}>
             <option value="zh-CN">zh-CN</option>
             <option value="en-US">en-US</option>
@@ -55,9 +163,7 @@ export default function Top() {
           />
           <button type="submit">Search</button>
         </Form>
-        <button>
-          <Themed dark="dark" light="light" system="system" />
-        </button>
+        <ThemeSelect />
       </div>
       <div className="w-screen fixed top-0">
         <div

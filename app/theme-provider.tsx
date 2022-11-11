@@ -98,7 +98,7 @@ function useThemeSetting() {
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
-  return [context[1], context[2]]
+  return [context[1], context[2]!] as const
 }
 
 function handleDarkAndLightModeEls() {

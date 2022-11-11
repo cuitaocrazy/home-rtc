@@ -1,19 +1,44 @@
+import type { Variants } from 'framer-motion'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+
+const menuVariants: Variants = {
+  open: {
+    clipPath: 'inset(0% 0% 0% 0% round 5px)',
+    opacity: 1,
+    transition: {
+      type: 'spring',
+      bounce: 0,
+    },
+  },
+  closed: {
+    clipPath: 'inset(1% 0% 99% 0% round 5px)',
+    opacity: 0,
+    transition: {
+      type: 'spring',
+      bounce: 0,
+    },
+  },
+}
+
+const testItems = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 
 const Test3 = () => {
+  const [isOpen, setIsOpen] = useState(false)
   return (
-    <motion.div
-      initial={{ opacity: 1, scale: 0.5 }}
-      animate={{
-        scale: [1, 2, 2, 1, 1],
-        rotate: [0, 0, 270, 270, 0],
-        borderRadius: ['20%', '20%', '50%', '50%', '20%'],
-      }}
-      // exit={{ opacity: 0 }}
-      // transition={{ duration: 1 }}
-    >
-      <h1>Test3</h1>
-    </motion.div>
+    <div>
+      <button onClick={() => setIsOpen((prev) => !prev)}>toggle</button>
+      <motion.ul
+        initial={false}
+        animate={isOpen ? 'open' : 'closed'}
+        variants={menuVariants}
+        className="bg-red-300"
+      >
+        {testItems.map((item) => (
+          <motion.li key={item}>{item}</motion.li>
+        ))}
+      </motion.ul>
+    </div>
   )
 }
 

@@ -15,7 +15,6 @@
     "docker:rm": "docker-compose down"
   },
   "dependencies": {
-    "@react-icons/all-files": "^4.1.0",
     "@remix-run/express": "^1.7.5",
     "@remix-run/node": "^1.7.5",
     "@remix-run/react": "^1.7.5",
@@ -31,6 +30,7 @@
     "morgan": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
     "tiny-invariant": "^1.3.1",
     "zod": "^3.19.1"
   },
