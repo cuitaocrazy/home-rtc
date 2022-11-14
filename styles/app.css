@@ -11,7 +11,8 @@
 }
 
 dark-mode,
-light-mode {
+light-mode,
+system-mode {
   display: none;
 }
 

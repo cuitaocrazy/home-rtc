@@ -6,10 +6,11 @@ import {
 } from '@remix-run/react'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BsCircleHalf, BsMoonFill, BsSunFill } from 'react-icons/bs'
 
 import useOnClickOutside from '~/hook/useOnClickOutside'
+import type { Theme } from '~/theme-provider'
 import { Themed, useThemeSetting } from '~/theme-provider'
 
 function ThemeDisplay({ children }: { children: React.ReactNode }) {
@@ -19,11 +20,15 @@ function ThemeSelect() {
   const { 0: theme, 1: setTheme } = useThemeSetting()
   const [isOpen, setIsOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const [options, setOptions] = useState<(Theme | null)[]>([])
 
+  useEffect(() => {
+    setOptions([null, 'light', 'dark'])
+  }, [])
   useOnClickOutside(rootRef, () => setIsOpen(false))
 
   return (
-    <div ref={rootRef} className="relative inline-block float-right">
+    <div ref={rootRef} className="relative inline-block">
       <button onClick={() => setIsOpen((prev) => !prev)} className="mr-8 ml-3">
         <Themed
           dark={
@@ -49,7 +54,7 @@ function ThemeSelect() {
       <motion.ul
         initial={false}
         onClick={() => setIsOpen(false)}
-        className="absolute bg-white border dark:bg-black cursor-pointer shadow rounded p-2"
+        className="absolute bg-white border dark:bg-gray-900 cursor-pointer shadow rounded p-2"
         animate={isOpen ? 'open' : 'closed'}
         variants={{
           open: {
@@ -65,51 +70,28 @@ function ThemeSelect() {
           },
         }}
       >
-        <motion.li
-          onClick={() => setTheme(null)}
-          className={clsx(
-            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
-            {
-              'border-transparent': theme !== null,
-              'bg-gray-100 dark:bg-gray-800': theme === null,
-            },
-          )}
-        >
-          <ThemeDisplay>
-            <BsCircleHalf />
-            System
-          </ThemeDisplay>
-        </motion.li>
-        <motion.li
-          onClick={() => setTheme('light')}
-          className={clsx(
-            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
-            {
-              'border-transparent': theme !== 'light',
-              'bg-gray-100 dark:bg-gray-800': theme === 'light',
-            },
-          )}
-        >
-          <ThemeDisplay>
-            <BsSunFill />
-            Light
-          </ThemeDisplay>
-        </motion.li>
-        <motion.li
-          onClick={() => setTheme('dark')}
-          className={clsx(
-            'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
-            {
-              'border-transparent': theme !== 'dark',
-              'bg-gray-100 dark:bg-gray-800': theme === 'dark',
-            },
-          )}
-        >
-          <ThemeDisplay>
-            <BsMoonFill />
-            Dark
-          </ThemeDisplay>
-        </motion.li>
+        {options.map((option, idx) => (
+          <motion.li
+            key={idx}
+            onClick={() => setTheme(option)}
+            className={clsx(
+              'border p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition',
+              {
+                'border-transparent': theme !== option,
+                'bg-gray-100 dark:bg-gray-800': theme === option,
+              },
+            )}
+          >
+            <ThemeDisplay>
+              {(option === null && <BsCircleHalf />) ||
+                (option === 'light' && <BsSunFill />) ||
+                (option === 'dark' && <BsMoonFill />)}
+              {(option === null && 'System') ||
+                (option === 'light' && 'Light') ||
+                (option === 'dark' && 'Dark')}
+            </ThemeDisplay>
+          </motion.li>
+        ))}
       </motion.ul>
     </div>
   )
@@ -135,9 +117,16 @@ export default function Top() {
   }
 
   return (
-    <div className="sticky top-0 z-40">
-      <div className="bg-cyan-600">
-        <Form action="/search" className="inline-block">
+    <nav className="sticky top-0 z-40 flex flex-nowrap py-2 bg-white dark:bg-slate-900 shadow dark:shadow-gray-800">
+      <div className="px-2 mx-auto container items-center flex">
+        <a
+          href="/"
+          className="block whitespace-nowrap text-2xl font-medium mr-auto"
+        >
+          RTC
+        </a>
+        <span className="">EN</span>
+        <Form action="/search">
           <select name="language" defaultValue={language}>
             <option value="zh-CN">zh-CN</option>
             <option value="en-US">en-US</option>
@@ -173,6 +162,6 @@ export default function Top() {
           })}
         ></div>
       </div>
-    </div>
+    </nav>
   )
 }
