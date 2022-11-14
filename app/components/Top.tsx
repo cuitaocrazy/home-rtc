@@ -125,7 +125,13 @@ export default function Top() {
         >
           RTC
         </a>
-        <span className="">EN</span>
+        <div className="relative">
+          <span className="mx-2">EN</span>
+          <ul className="absolute bg-white dark:bg-gray-900">
+            <li className="mx-2">EN</li>
+            <li className="mx-2">CN</li>
+          </ul>
+        </div>
         <Form action="/search">
           <select name="language" defaultValue={language}>
             <option value="zh-CN">zh-CN</option>
