@@ -16,6 +16,7 @@ import { Themed, useThemeSetting } from '~/theme-provider'
 function ThemeDisplay({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center gap-1">{children}</div>
 }
+
 function ThemeSelect() {
   const { 0: theme, 1: setTheme } = useThemeSetting()
   const [isOpen, setIsOpen] = useState(false)

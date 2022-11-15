@@ -3,9 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import useOnClickOutside from '~/hook/useOnClickOutside'
 import { useMyLayoutEffect } from '~/routes/test2'
 
-export function useSelect<T>() {
+export function useSelect<T>(
+  onChange: (value: T) => void = () => {},
+  defaultValue: T | null = null,
+) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selected, setSelected] = useState<T | null>(null)
+  const [selected, setSelected] = useState<T | null>(defaultValue)
   const [scrollTop, setScrollTop] = useState(0)
   const rootRef = useRef<HTMLElement | null>(null)
   const inputRef = useRef<HTMLElement | null>(null)
@@ -35,18 +38,23 @@ export function useSelect<T>() {
         indexItemMapRef.current.set(idx, item)
 
         const clickHandler = () => {
+          onChange(item)
           setSelected(item)
           toggle()
         }
 
         ref.addEventListener('click', clickHandler)
+
+        return () => {
+          ref.removeEventListener('click', clickHandler)
+        }
       } else {
         itemRefs.current.delete(idx)
         itemIndexMapRef.current.delete(item)
         indexItemMapRef.current.delete(idx)
       }
     },
-    [toggle],
+    [onChange, toggle],
   )
 
   const menuRefHandler = useCallback((ref: HTMLElement | null) => {
@@ -117,11 +125,14 @@ export function useSelect<T>() {
           const next = indexItemMapRef.current.get(idx + 1)
 
           if (next) {
+            onChange(next)
             setSelected(next)
           } else {
+            onChange(indexItemMapRef.current.get(0)!)
             setSelected(indexItemMapRef.current.get(0)!)
           }
         } else {
+          onChange(indexItemMapRef.current.get(0)!)
           setSelected(indexItemMapRef.current.get(0)!)
         }
       }
@@ -134,13 +145,20 @@ export function useSelect<T>() {
           const next = indexItemMapRef.current.get(idx - 1)
 
           if (next) {
+            onChange(next)
             setSelected(next)
           } else {
+            onChange(
+              indexItemMapRef.current.get(indexItemMapRef.current.size - 1)!,
+            )
             setSelected(
               indexItemMapRef.current.get(indexItemMapRef.current.size - 1)!,
             )
           }
         } else {
+          onChange(
+            indexItemMapRef.current.get(indexItemMapRef.current.size - 1)!,
+          )
           setSelected(
             indexItemMapRef.current.get(indexItemMapRef.current.size - 1)!,
           )
@@ -153,7 +171,7 @@ export function useSelect<T>() {
     return () => {
       input.removeEventListener('keydown', keydownHandler)
     }
-  })
+  }, [isOpen, onChange, selected, toggle])
 
   useMyLayoutEffect(() => {
     if (!selected || !menuRef.current) return
@@ -181,7 +199,6 @@ export function useSelect<T>() {
   return {
     isOpen,
     selected,
-    toggle,
     setSelected,
     rootRefHandler,
     itemRefHandler,

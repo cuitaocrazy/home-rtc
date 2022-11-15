@@ -18,9 +18,11 @@ export async function getSession(request: Request) {
   return sessionStorage.getSession(cookie)
 }
 
+export type Language = 'zh-CN' | 'en-US'
+
 export async function getLanguage(request: Request) {
   const session = await getSession(request)
-  return session.get(LANG_SESSION_KEY) || 'zh-CN'
+  return (session.get(LANG_SESSION_KEY) as Language) || 'zh-CN'
 }
 
 export async function setLanguage(request: Request, lang: string) {
