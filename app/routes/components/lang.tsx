@@ -3,12 +3,11 @@ import { json } from '@remix-run/node'
 import { useLoaderData, useSubmit, useTransition } from '@remix-run/react'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 import { useSelect } from '~/hook/useSelect'
 import type { Language } from '~/services/session.server'
-import { setLanguage } from '~/services/session.server'
-import { getLanguage } from '~/services/session.server'
+import { getLanguage, setLanguage } from '~/services/session.server'
 
 export async function loader({ request }: LoaderArgs) {
   return json(await getLanguage(request))
@@ -20,11 +19,12 @@ export async function loader({ request }: LoaderArgs) {
 
 export async function action({ request }: ActionArgs) {
   const data = await request.formData()
-  console.log(data.get('lang'))
-  // await testDelay()
-  return json(null, await setLanguage(request, data.get('lang') as string))
-  // return null
+  return json(
+    data.get('lang') as Language,
+    await setLanguage(request, data.get('lang') as Language),
+  )
 }
+
 const languages = {
   'zh-CN': 'CN',
   'en-US': 'EN',
@@ -34,40 +34,27 @@ export default function Lang() {
   const lang = useLoaderData<typeof loader>()
   const submit = useSubmit()
   const transition = useTransition()
-  const submitting = useRef(false)
-
-  const onChange = useCallback(
-    (lang: Language) => {
-      submitting.current = true
-      submit({ lang }, { method: 'post' })
-    },
-    [submit],
-  )
-
-  const select = useSelect<Language>(onChange, lang)
-  // feature test: optimistic UI
-  const selectValue =
-    (transition.submission?.formData.get('lang') as Language) || lang
+  const select = useSelect<Language>((lang) => {
+    submit({ lang }, { method: 'post', replace: true })
+  }, lang)
+  const { setSelected, selected } = select
 
   useEffect(() => {
-    if (submitting.current && transition.state === 'idle') {
+    if (transition.state !== 'idle') {
       return
     }
 
-    submitting.current = false
-    if (transition.state === 'idle' && select.selected !== lang) {
-      submitting.current = false
-      select.setSelected(lang)
-    }
-  }, [lang, select, transition.state])
+    // 同步服务端Lang
+    setSelected(lang)
+  }, [lang, transition.state, setSelected])
+
+  const selectValue = selected || lang
 
   return (
     <div ref={select.rootRefHandler}>
-      <input
-        ref={select.inputRefHandler}
-        value={languages[selectValue]}
-        readOnly
-      ></input>
+      <span tabIndex={0} ref={select.inputRefHandler}>
+        {languages[selectValue]}
+      </span>
       <motion.ul
         initial={false}
         ref={select.menuRefHandler}
@@ -93,7 +80,7 @@ export default function Lang() {
             className={clsx({
               'bg-gray-400': selectValue === key,
             })}
-            // onClick={() => submit({ lang: key }, { method: 'post' })}
+            onClick={() => submit({ lang: key }, { method: 'post' })}
           >
             {value}
           </motion.li>

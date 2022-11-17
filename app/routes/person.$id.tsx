@@ -4,6 +4,7 @@ import { json } from '@remix-run/server-runtime'
 
 import Grid from '~/components/Grid'
 import SearchCard from '~/components/SearchCard'
+import { useMotionLoaderData } from '~/hook/useMotionLoaderData'
 import {
   getMovieCreditsByPersonId,
   getPersonDetails,
@@ -41,7 +42,7 @@ export async function loader({ params }: LoaderArgs) {
 }
 
 export default function Person() {
-  const data = useLoaderData<typeof loader>()
+  const data = useMotionLoaderData<typeof loader>()
 
   return (
     <div>

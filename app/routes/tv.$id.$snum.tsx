@@ -4,6 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 
 import Grid from '~/components/Grid'
 import LinkCard from '~/components/LinkCard'
+import { useMotionLoaderData } from '~/hook/useMotionLoaderData'
 import { getTVSeasonDetails } from '~/services/tmdb.server'
 import { getImageUrl } from '~/utils'
 
@@ -14,7 +15,7 @@ export async function loader({ params }: LoaderArgs) {
 }
 
 export default function () {
-  const data = useLoaderData<typeof loader>()
+  const data = useMotionLoaderData<typeof loader>()
   return (
     <Grid min={320}>
       {data.episodes.map((episode) => {

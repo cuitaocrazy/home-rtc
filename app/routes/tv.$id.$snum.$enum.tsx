@@ -4,6 +4,7 @@ import { useLoaderData } from '@remix-run/react'
 
 import Grid from '~/components/Grid'
 import SmallCard from '~/components/SmallCard'
+import { useMotionLoaderData } from '~/hook/useMotionLoaderData'
 import { getTVEpisodeDetails } from '~/services/tmdb.server'
 import { aggObj, getImageUrl } from '~/utils'
 
@@ -20,7 +21,7 @@ export async function loader({ params }: LoaderArgs) {
   return json(data) //, { headers: { 'Cache-Control': 'max-age=3600' } })
 }
 export default function () {
-  const data = useLoaderData<typeof loader>()
+  const data = useMotionLoaderData<typeof loader>()
   return (
     <div>
       <h1>{data.name}</h1>

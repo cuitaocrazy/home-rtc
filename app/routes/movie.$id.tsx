@@ -1,9 +1,11 @@
 import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useFetcher, useLoaderData } from '@remix-run/react'
+import { useEffect, useRef } from 'react'
 
 import Grid from '~/components/Grid'
 import SmallCard from '~/components/SmallCard'
+import { useMotionLoaderData } from '~/hook/useMotionLoaderData'
 import { getMovieCredits, getMovieDetails } from '~/services/tmdb.server'
 import { aggObj, getImageUrl } from '~/utils'
 
@@ -33,7 +35,7 @@ export async function loader({ params }: LoaderArgs) {
 }
 
 export default function Movie() {
-  const data = useLoaderData<typeof loader>()
+  const data = useMotionLoaderData<typeof loader>()
   const magnetFetch = useFetcher<TPBQueryItem[]>()
   const downloadFetch = useFetcher()
   const downloadHandler = async (magnetLink: string) => {

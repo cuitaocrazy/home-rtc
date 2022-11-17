@@ -3,11 +3,13 @@ import {
   Links,
   LiveReload,
   Meta,
-  Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
+  useOutlet,
 } from '@remix-run/react'
 import clsx from 'clsx'
+import { AnimatePresence, motion } from 'framer-motion'
 
 import Top from './components/Top'
 import tailwindStylesheetUrl from './styles/tailwind.css'
@@ -29,6 +31,7 @@ export const meta: MetaFunction = () => ({
 
 function App() {
   const theme = useTheme()
+  const outlet = useOutlet()
   return (
     <html lang="en" className={clsx(theme || 'dark')}>
       <head>
@@ -39,7 +42,17 @@ function App() {
       </head>
       <body>
         <Top />
-        <Outlet />
+        <AnimatePresence exitBeforeEnter initial={false}>
+          <motion.main
+            key={useLocation().pathname}
+            initial={{ x: '-10%', opacity: 0 }}
+            animate={{ x: '0', opacity: 1 }}
+            exit={{ y: '-10%', opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {outlet}
+          </motion.main>
+        </AnimatePresence>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

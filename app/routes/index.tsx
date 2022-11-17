@@ -1,8 +1,10 @@
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import { motion } from 'framer-motion'
 
 import Grid from '~/components/Grid'
 import SearchCard from '~/components/SearchCard'
+import { useMotionLoaderData } from '~/hook/useMotionLoaderData'
 import { discoverMovie, discoverTv } from '~/services/tmdb.server'
 
 export async function loader() {
@@ -15,7 +17,7 @@ export async function loader() {
 }
 
 export default function Index() {
-  const data = useLoaderData<typeof loader>()
+  const data = useMotionLoaderData<typeof loader>()
   return (
     <div>
       <Grid>

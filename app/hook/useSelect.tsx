@@ -21,6 +21,7 @@ export function useSelect<T>(
     if (menuRef.current) {
       setScrollTop(menuRef.current.scrollTop)
     }
+    console.log('123')
     setIsOpen((prev) => !prev)
   }, [])
 

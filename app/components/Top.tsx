@@ -1,5 +1,6 @@
 import {
   Form,
+  Link,
   useFetchers,
   useSearchParams,
   useTransition,
@@ -120,12 +121,12 @@ export default function Top() {
   return (
     <nav className="sticky top-0 z-40 flex flex-nowrap py-2 bg-white dark:bg-slate-900 shadow dark:shadow-gray-800">
       <div className="px-2 mx-auto container items-center flex">
-        <a
-          href="/"
+        <Link
+          to="/"
           className="block whitespace-nowrap text-2xl font-medium mr-auto"
         >
           RTC
-        </a>
+        </Link>
         <div className="relative">
           <span className="mx-2">EN</span>
           <ul className="absolute bg-white dark:bg-gray-900">
