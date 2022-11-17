@@ -1,10 +1,12 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import {
   Links,
   LiveReload,
   Meta,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   useLocation,
   useOutlet,
 } from '@remix-run/react'
@@ -12,6 +14,7 @@ import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import Top from './components/Top'
+import { getLanguage } from './services/session.server'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import {
   NonFlashOfWrongThemeEls,
@@ -29,7 +32,12 @@ export const meta: MetaFunction = () => ({
   viewport: 'width=device-width,initial-scale=1',
 })
 
+export async function loader({ request }: LoaderArgs) {
+  return json(await getLanguage(request))
+}
+
 function App() {
+  const lang = useLoaderData<typeof loader>()
   const theme = useTheme()
   const outlet = useOutlet()
   return (
@@ -41,7 +49,7 @@ function App() {
         <Links />
       </head>
       <body>
-        <Top />
+        <Top lang={lang} />
         <AnimatePresence exitBeforeEnter initial={false}>
           <motion.main
             key={useLocation().pathname}

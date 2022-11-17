@@ -1,8 +1,10 @@
 import {
   Form,
   Link,
+  useFetcher,
   useFetchers,
   useSearchParams,
+  useSubmit,
   useTransition,
 } from '@remix-run/react'
 import clsx from 'clsx'
@@ -11,8 +13,75 @@ import { useEffect, useRef, useState } from 'react'
 import { BsCircleHalf, BsMoonFill, BsSunFill } from 'react-icons/bs'
 
 import useOnClickOutside from '~/hook/useOnClickOutside'
+import { useSelect } from '~/hook/useSelect'
+import type { Language } from '~/services/session.server'
 import type { Theme } from '~/theme-provider'
 import { Themed, useThemeSetting } from '~/theme-provider'
+
+const languages = {
+  'zh-CN': 'CN',
+  'en-US': 'EN',
+}
+
+function Lang({ lang }: { lang: Language }) {
+  // const submit = useSubmit()
+  const { submit } = useFetcher()
+  const transition = useTransition()
+  const select = useSelect<Language>((lang) => {
+    submit({ lang }, { method: 'post', replace: true, action: '/api/lang' })
+  }, lang)
+  const { setSelected, selected } = select
+
+  useEffect(() => {
+    if (transition.state !== 'idle') {
+      return
+    }
+
+    // 同步服务端Lang
+    setSelected(lang)
+  }, [lang, transition.state, setSelected])
+
+  const selectValue = selected || lang
+
+  return (
+    <div ref={select.rootRefHandler} className="relative">
+      <span tabIndex={0} ref={select.inputRefHandler}>
+        {languages[selectValue]}
+      </span>
+      <motion.ul
+        className="absolute"
+        initial={false}
+        ref={select.menuRefHandler}
+        animate={select.isOpen ? 'open' : 'closed'}
+        variants={{
+          open: {
+            clipPath: 'inset(-100% -100% -100% -100%)',
+            opacity: 1,
+          },
+          closed: {
+            clipPath: 'inset(0% 0% 100% 0%)',
+            opacity: 0,
+            transition: {
+              duration: 0,
+            },
+          },
+        }}
+      >
+        {Object.entries(languages).map(([key, value], idx) => (
+          <motion.li
+            ref={select.itemRefHandler(idx, key as Language)}
+            key={key}
+            className={clsx({
+              'bg-gray-400': selectValue === key,
+            })}
+          >
+            {value}
+          </motion.li>
+        ))}
+      </motion.ul>
+    </div>
+  )
+}
 
 function ThemeDisplay({ children }: { children: React.ReactNode }) {
   return <div className="flex items-center gap-1">{children}</div>
@@ -99,7 +168,7 @@ function ThemeSelect() {
   )
 }
 
-export default function Top() {
+export default function Top({ lang }: { lang: Language }) {
   const [searchParams] = useSearchParams()
   const searchKeyWord = searchParams.get('query') || ''
   const scope = searchParams.get('scope') || undefined
@@ -127,6 +196,7 @@ export default function Top() {
         >
           RTC
         </Link>
+        <Lang lang={lang} />
         <div className="relative">
           <span className="mx-2">EN</span>
           <ul className="absolute bg-white dark:bg-gray-900">
